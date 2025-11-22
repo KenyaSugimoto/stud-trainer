@@ -39,7 +39,7 @@ export interface ActionLog {
 	street: Street;
 	seat: number;
 	action: ActionType;
-	cards: string;  // 表示用 ("XxXx/Ac7d" など)
+	cards: string; // 表示用 ("XxXx/Ac7d" など)
 	size?: number;
 }
 
