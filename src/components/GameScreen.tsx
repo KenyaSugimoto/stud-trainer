@@ -10,6 +10,7 @@ export const GameScreen = ({ gameState }: Props) => {
 	return (
 		<div className="p-4">
 			<h2 className="font-bold text-lg">Stud vs CPU</h2>
+			<div>Game Type: {gameState.gameType}</div>
 			<div>Players: {gameState.playerCount}</div>
 			<div>Street: {gameState.street}</div>
 			<div>Pot: {gameState.pot}</div>

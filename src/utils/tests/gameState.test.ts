@@ -4,14 +4,14 @@ import { initGameState } from "../gameState";
 
 describe("initGameState", () => {
 	it("正しいプレイヤー数でゲームステートを初期化する", () => {
-		const gs = initGameState(5);
+		const gs = initGameState(5, "STUD_HI");
 
 		expect(gs.playerCount).toBe(5);
 		expect(gs.players).toHaveLength(5);
 	});
 
 	it("プレイヤーの初期値が正しい", () => {
-		const gs = initGameState(4);
+		const gs = initGameState(4, "STUD_HI");
 
 		for (let i = 0; i < 4; i++) {
 			const p = gs.players[i];
@@ -35,7 +35,7 @@ describe("initGameState", () => {
 	});
 
 	it("デッキが生成され 52 枚あり、シャッフルされている", () => {
-		const gs = initGameState(3);
+		const gs = initGameState(3, "STUD_HI");
 
 		expect(gs.deck).toHaveLength(52);
 
@@ -50,7 +50,7 @@ describe("initGameState", () => {
 	});
 
 	it("ゲームステートの初期値が正しい", () => {
-		const gs = initGameState(3);
+		const gs = initGameState(3, "STUD_HI");
 
 		expect(gs.street).toBe("3rd");
 		expect(gs.pot).toBe(0);
