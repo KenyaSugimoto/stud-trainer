@@ -25,7 +25,7 @@ const rankHiValue: Record<string, number> = {
 	2: 2,
 };
 
-// rank を数値化（Razz用：A が最強）
+// rank を数値化（Razz用：A が最も低い = 最良）
 const rankRazzValue: Record<string, number> = {
 	A: 1,
 	2: 2,
@@ -44,7 +44,13 @@ const rankRazzValue: Record<string, number> = {
 
 const upcardOf = (p: PlayerState): Card => p.upcards[0];
 
-/** bring-in seatIndex を返す */
+/**
+ * bring-inを支払うべきプレイヤーのseatインデックスを計算する
+ * - Stud Hi / Stud8: 最も弱いアップカード（低いrank、同じなら弱いsuit）
+ * - Razz: 最も高いアップカード（高いrank、同じなら強いsuit）
+ * @param state - 現在のゲーム状態
+ * @returns bring-inプレイヤーのseatインデックス（該当者がいない場合は0）
+ */
 export const computeBringIn = (state: GameState): number => {
 	const alivePlayers = state.players.filter((p) => p.alive);
 
@@ -59,28 +65,31 @@ export const computeBringIn = (state: GameState): number => {
 			continue;
 		}
 
-		const c1 = card;
-		const c2 = upcardOf(best);
+		// 比較対象のカード
+		const currentCard = card;
+		const bestCard = upcardOf(best);
 
 		// 現在のゲームに応じた rank 値を取得
 		const rankVal = state.gameType === "RAZZ" ? rankRazzValue : rankHiValue;
 
-		const v1 = rankVal[c1.rank];
-		const v2 = rankVal[c2.rank];
+		const currentRank = rankVal[currentCard.rank];
+		const bestRank = rankVal[bestCard.rank];
 
-		// Razz → " strongest" が bring-in
-		if (state.gameType === "RAZZ") {
-			if (v1 > v2 || (v1 === v2 && suitValue[c1.suit] > suitValue[c2.suit])) {
-				best = p;
-			}
-			continue;
-		}
+		// 比較ロジック
+		const shouldReplace =
+			state.gameType === "RAZZ"
+				? currentRank > bestRank || (currentRank === bestRank && suitValue[currentCard.suit] > suitValue[bestCard.suit])
+				: currentRank < bestRank ||
+					(currentRank === bestRank && suitValue[currentCard.suit] < suitValue[bestCard.suit]);
 
-		// Stud Hi / Stud8 → " weakest" が bring-in
-		if (v1 < v2 || (v1 === v2 && suitValue[c1.suit] < suitValue[c2.suit])) {
+		// bring-in候補 更新
+		if (shouldReplace) {
 			best = p;
 		}
 	}
 
-	return best?.seat ?? 0;
+	if (!best) {
+		throw new Error("bring-in判定: 有効なプレイヤーが見つかりません");
+	}
+	return best.seat;
 };

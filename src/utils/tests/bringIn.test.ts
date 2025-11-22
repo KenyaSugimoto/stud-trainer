@@ -62,10 +62,19 @@ describe("computeBringIn - Stud Hi / Stud8", () => {
 
 		expect(result).toBe(1);
 	});
+	it("Stud8でも最弱のアップカードが bring-in になる", () => {
+		const players = [
+			makePlayer(0, "K", "s"),
+			makePlayer(1, "3", "h"), // 最弱 → bring-in
+			makePlayer(2, "T", "d"),
+		];
+		const state = makeState(players, "STUD_8");
+		expect(computeBringIn(state)).toBe(1);
+	});
 });
 
 describe("computeBringIn - Razz", () => {
-	it("Razz bring-in判定", () => {
+	it("Razzでは最も高いランク（worst card）がbring-inになる", () => {
 		const players = [
 			makePlayer(0, "4", "d"),
 			makePlayer(1, "A", "c"),
@@ -78,7 +87,8 @@ describe("computeBringIn - Razz", () => {
 		expect(result).toBe(2);
 	});
 
-	it("Razz rankが同じ場合、スペード（s > h > d > c）が bring-in", () => {
+	// Razz: スート順（s > h > d > c）では強い方が bring-in
+	it("Razzでrankが同じ場合、スペードが bring-in", () => {
 		const players = [
 			makePlayer(0, "6", "d"),
 			makePlayer(1, "6", "c"),
