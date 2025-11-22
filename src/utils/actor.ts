@@ -1,14 +1,14 @@
 import { MAX_RAISES_PER_STREET } from "../consts/consts";
-import type { ActionType, GameState } from "../types/types";
+import type { ActionType, GameState, SeatIndex } from "../types/types";
 
 // 次のアクターのseat indexを取得
-export const getNextActorIndex = (state: GameState): number => {
+export const getNextActorIndex = (state: GameState): SeatIndex => {
 	const count = state.playerCount;
 	let idx = state.currentActorIndex;
 
 	while (true) {
 		idx = (idx + 1) % count;
-		if (state.players[idx].alive) return idx;
+		if (state.players[idx].alive) return idx as SeatIndex;
 	}
 };
 

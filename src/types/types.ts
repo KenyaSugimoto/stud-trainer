@@ -13,9 +13,9 @@ export interface Card {
 }
 
 // ---- Player ----
-
+export type SeatIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export interface PlayerState {
-	seat: number; // 0〜7
+	seat: SeatIndex; // 0〜7
 	name: string; // "You", "CPU1", "CPU2" など
 	isHuman: boolean;
 	alive: boolean;
@@ -37,7 +37,7 @@ export interface Action {
 
 export interface ActionLog {
 	street: Street;
-	seat: number;
+	seat: SeatIndex;
 	action: ActionType;
 	cards: string; // 表示用 ("XxXx/Ac7d" など)
 	size?: number;
@@ -55,8 +55,8 @@ export interface GameState {
 	deck: Card[]; // まだ残っているデッキ
 
 	pot: number;
-	bringInIndex: number | null;
-	currentActorIndex: number; // 次に行動するseat
+	bringInIndex: SeatIndex | null;
+	currentActorIndex: SeatIndex; // 次に行動するseat
 
 	actionsThisStreet: Action[];
 	logs: ActionLog[];

@@ -1,4 +1,4 @@
-import type { Card, GameState, PlayerState } from "../types/types";
+import type { Card, GameState, PlayerState, SeatIndex } from "../types/types";
 
 // スート順位（♣ < ♦ < ♥ < ♠）
 const suitValue = {
@@ -51,7 +51,7 @@ const upcardOf = (p: PlayerState): Card => p.upcards[0];
  * @param state - 現在のゲーム状態
  * @returns bring-inプレイヤーのseatインデックス（該当者がいない場合は0）
  */
-export const computeBringIn = (state: GameState): number => {
+export const computeBringIn = (state: GameState): SeatIndex => {
 	const alivePlayers = state.players.filter((p) => p.alive);
 
 	let best: PlayerState | null = null;

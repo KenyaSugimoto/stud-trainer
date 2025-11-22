@@ -9,7 +9,7 @@ export const initGameState = (playerCount: number, gameType: GameType): GameStat
 		const isHuman = seat === 0;
 
 		players.push({
-			seat,
+			seat: seat as SeatIndex,
 			name: isHuman ? "You" : `CPU${seat}`,
 			isHuman,
 			alive: true,

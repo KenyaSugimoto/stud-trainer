@@ -3,7 +3,7 @@ import type { GameState, PlayerState, Rank, Suit } from "../../types/types";
 import { computeBringIn } from "../bringIn";
 
 // ヘルパー：アップカード1枚だけ持つ Player を作る
-function makePlayer(seat: number, rank: Rank, suit: Suit): PlayerState {
+function makePlayer(seat: SeatIndex, rank: Rank, suit: Suit): PlayerState {
 	return {
 		seat,
 		name: `P${seat}`,

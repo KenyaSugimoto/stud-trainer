@@ -1,8 +1,9 @@
 // test/helpers.ts
 
-import type { GameState, PlayerState } from "../../types/types";
+import { DEFAULT_STAKES } from "../../consts/consts";
+import type { GameState, PlayerState, SeatIndex } from "../../types/types";
 
-export function makePlayer(seat: number): PlayerState {
+export function makePlayer(seat: SeatIndex): PlayerState {
 	return {
 		seat,
 		name: `P${seat}`,
