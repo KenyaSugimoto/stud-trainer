@@ -3,6 +3,7 @@ import { useState } from "react";
 import { GameScreen } from "./components/GameScreen";
 import { GameSetupScreen } from "./components/GameSetupScreen";
 import type { GameState, GameType } from "./types/types";
+import { computeBringIn } from "./utils/bringIn";
 import { deal3rd } from "./utils/card";
 import { initGameState } from "./utils/gameState";
 
@@ -12,6 +13,8 @@ export default function App() {
 	const handleStart = (playerCount: number, gameType: GameType) => {
 		let gs = initGameState(playerCount, gameType);
 		gs = deal3rd(gs);
+		gs.bringInIndex = computeBringIn(gs);
+		gs.currentActorIndex = gs.bringInIndex;
 		setGameState(gs);
 	};
 
