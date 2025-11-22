@@ -142,7 +142,7 @@ describe("deal3rd", () => {
 
 		// 全カードは元の deck から取られている
 		const baseSet = new Set(baseDeck.map((c) => `${c.rank}${c.suit}`));
-		expect(baseSet).toEqual(new Set([...baseSet])); // sanity check
+		expect(baseSet.size).toBe(52); // 元のデッキが52枚であることを確認
 
 		for (const card of dealtCards) {
 			expect(baseSet.has(card)).toBe(true);
