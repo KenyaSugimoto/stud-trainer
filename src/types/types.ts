@@ -1,9 +1,5 @@
 // ---- Game ----
-export const StudGameType = {
-	StudHi: "STUD_HI",
-	Razz: "RAZZ",
-	Stud8: "STUD_8",
-};
+export type GameType = "STUD_HI" | "RAZZ" | "STUD_8";
 
 export type Street = "3rd" | "4th" | "5th" | "6th" | "7th";
 
@@ -53,6 +49,7 @@ export type ActionType = "f" | "c" | "b" | "r" | "x" | "bri" | "comp";
 // ---- GameState ----
 export interface GameState {
 	playerCount: number; // 2〜8
+	gameType: GameType;
 	players: PlayerState[]; // seat順
 	street: Street; // 現在のストリート
 	deck: Card[]; // まだ残っているデッキ

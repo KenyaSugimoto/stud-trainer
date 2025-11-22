@@ -1,7 +1,7 @@
-import type { GameState, PlayerState } from "../types/types";
+import type { GameState, GameType, PlayerState } from "../types/types";
 import { createDeck, shuffle } from "./card";
 
-export const initGameState = (playerCount: number): GameState => {
+export const initGameState = (playerCount: number, gameType: GameType): GameState => {
 	const deck = shuffle(createDeck());
 
 	const players: PlayerState[] = [];
@@ -23,6 +23,7 @@ export const initGameState = (playerCount: number): GameState => {
 
 	const gs: GameState = {
 		playerCount,
+		gameType,
 		players,
 		street: "3rd",
 		deck,
