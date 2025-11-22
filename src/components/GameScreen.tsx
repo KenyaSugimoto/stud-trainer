@@ -15,6 +15,8 @@ export const GameScreen = ({ gameState }: Props) => {
 			<div>Street: {gameState.street}</div>
 			<div>Pot: {gameState.pot}</div>
 			<div>Deck Remaining: {gameState.deck.length} cards</div>
+			<div>Bring-in Player: {gameState.bringInIndex}</div>
+			<div>Current Actor: {gameState.currentActorIndex}</div>
 
 			<h3 className="mt-4 font-semibold">Player List</h3>
 			<ul>
