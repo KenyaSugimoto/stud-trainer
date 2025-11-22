@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { useGameStore } from "../hooks/useGameStore";
 import type { ActionType } from "../types/types";
-import { applyAction, getActionLabel, getAllowedActions } from "../utils/actor";
+import { getActionLabel, getAllowedActions } from "../utils/actor";
 
 export const GameScreen = () => {
-	const { gameState, setGameState } = useGameStore();
+	const { gameState, applyAction } = useGameStore();
 
 	// 現在のアクター
 	const actor = gameState?.currentActorIndex ?? null;
@@ -50,11 +50,7 @@ export const GameScreen = () => {
 			{player.isHuman && !gameState.handFinished && (
 				<div className="mt-4 flex gap-2">
 					{allowed.map((action) => (
-						<button
-							key={action}
-							type="button"
-							onClick={() => setGameState(applyAction(structuredClone(gameState), action))}
-						>
+						<button key={action} type="button" onClick={() => applyAction(action, actor)}>
 							{getActionLabel(action)}
 						</button>
 					))}

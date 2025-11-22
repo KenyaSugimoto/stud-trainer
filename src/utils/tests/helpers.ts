@@ -20,6 +20,7 @@ export function makePlayer(seat: SeatIndex): PlayerState {
 export function makeState(players: PlayerState[], street: GameState["street"] = "3rd"): GameState {
 	return {
 		playerCount: players.length,
+		stakes: DEFAULT_STAKES,
 		players,
 		street,
 		deck: [],

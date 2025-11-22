@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { applyAction, getActionLabel, getAllowedActions, getNextActorIndex } from "../actor";
+import {
+	getActionLabel,
+	getAllowedActions,
+	getFirstActorForStreet,
+	getNextActorIndex,
+	shouldEndStreet,
+} from "../actor";
+import { computeBringIn } from "../bringIn";
 import { makePlayer, makeState } from "./helpers";
 
 describe("getNextActorIndex", () => {
@@ -14,63 +21,9 @@ describe("getNextActorIndex", () => {
 
 		p1.alive = false;
 		expect(getNextActorIndex(state)).toBe(2);
-	});
-});
 
-describe("applyAction", () => {
-	it("fold は alive=false にする", () => {
-		const p0 = makePlayer(0);
-		const state = makeState([p0]);
-
-		const newState = applyAction(state, "f");
-		expect(newState.players[0].alive).toBe(false);
-	});
-
-	it("bet/raise/call は pot と totalBetThisRound を更新", () => {
-		const p0 = makePlayer(0);
-		const state = makeState([p0]);
-
-		const newState = applyAction(state, "b", 20);
-
-		expect(newState.pot).toBe(20);
-		expect(newState.players[0].totalBetThisRound).toBe(20);
-	});
-
-	it("全員 fold で handFinished=true（winnerIndexes は空配列）", () => {
-		const p0 = makePlayer(0);
-		const p1 = makePlayer(1);
-
-		p1.alive = false; // p0 だけが生存
-		const state = makeState([p0, p1]);
-
-		const newState = applyAction(state, "f"); // p0 が fold → 全員死ぬ
-
-		expect(newState.handFinished).toBe(true);
-		expect(newState.winnerIndexes).toEqual(null);
-	});
-
-	it("最後に1人だけ生き残った場合はその seat が winner", () => {
-		const p0 = makePlayer(0);
-		const p1 = makePlayer(1);
-
-		const state = makeState([p0, p1]);
-
-		// p0 が fold → p1 が唯一の生存者
-		const newState = applyAction(state, "f");
-
-		expect(newState.handFinished).toBe(true);
-		expect(newState.winnerIndexes).toEqual([1]); // ← 正しい勝者
-	});
-
-	it("次のアクターが正しく進む", () => {
-		const p0 = makePlayer(0);
-		const p1 = makePlayer(1);
-		const state = makeState([p0, p1]);
-
-		state.currentActorIndex = 0;
-		const newState = applyAction(state, "x");
-
-		expect(newState.currentActorIndex).toBe(1);
+		state.currentActorIndex = 2;
+		expect(getNextActorIndex(state)).toBe(0);
 	});
 });
 
@@ -152,5 +105,143 @@ describe("getActionLabel", () => {
 		expect(getActionLabel("x")).toBe("Check");
 		expect(getActionLabel("bri")).toBe("Bring-In");
 		expect(getActionLabel("comp")).toBe("Complete");
+	});
+});
+
+describe("shouldEndStreet", () => {
+	it("生存者が1以下なら true（ストリート終了）", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		p1.alive = false;
+
+		const state = makeState([p0, p1]);
+		expect(shouldEndStreet(state)).toBe(true);
+	});
+
+	it("レイズがあり、全員の bet が揃い、一周していればストリート終了", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.totalBetThisRound = 1000;
+		p1.totalBetThisRound = 1000;
+
+		const state = makeState([p0, p1]);
+
+		state.actionsThisStreet = [
+			{ type: "b", player: 0 },
+			{ type: "r", player: 1 },
+			{ type: "c", player: 0 },
+		];
+
+		state.currentActorIndex = 1;
+
+		// next actor は 0
+		expect(shouldEndStreet(state)).toBe(true);
+	});
+
+	it("ベットが揃っていなければストリートは続行", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.totalBetThisRound = 20;
+		p1.totalBetThisRound = 0;
+
+		const state = makeState([p0, p1]);
+
+		state.actionsThisStreet = [{ type: "b", player: 0 }];
+		state.currentActorIndex = 1;
+
+		expect(shouldEndStreet(state)).toBe(false);
+	});
+
+	it("レイズがない場合はストリート終了", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.totalBetThisRound = 0;
+		p1.totalBetThisRound = 0;
+
+		const state = makeState([p0, p1]);
+
+		state.actionsThisStreet = [
+			{ type: "x", player: 0 },
+			{ type: "x", player: 1 },
+		];
+
+		state.currentActorIndex = 1;
+
+		expect(shouldEndStreet(state)).toBe(true);
+	});
+
+	it("アグレッサー以外が全員foldした場合はストリート終了", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.totalBetThisRound = 500;
+		p1.totalBetThisRound = 0;
+
+		const state = makeState([p0, p1]);
+
+		state.actionsThisStreet = [
+			{ type: "b", player: 0 },
+			{ type: "f", player: 1 },
+		];
+
+		state.currentActorIndex = 0;
+
+		expect(shouldEndStreet(state)).toBe(true);
+	});
+});
+
+describe("getFirstActorForStreet (3rd Street / Bring-in)", () => {
+	it("street=3rd → bring-in が最初のアクター", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.upcards = [{ rank: "A", suit: "s" }];
+		p1.upcards = [{ rank: "K", suit: "c" }];
+
+		const state = makeState([p0, p1]);
+		state.street = "3rd";
+
+		state.bringInIndex = computeBringIn(state);
+
+		const first = getFirstActorForStreet(state);
+		expect(first).toBe(state.bringInIndex);
+	});
+});
+
+describe("getFirstActorForStreet (4th〜)", () => {
+	it("Stud Hi: 最も強いアップカードが最初のアクター", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		const p2 = makePlayer(2);
+
+		p0.upcards = [{ rank: "5", suit: "d" }];
+		p1.upcards = [{ rank: "K", suit: "c" }];
+		p2.upcards = [{ rank: "K", suit: "s" }]; // 最強（同rank, suit強い）
+
+		const state = makeState([p0, p1, p2]);
+		state.street = "4th";
+
+		const first = getFirstActorForStreet(state);
+		expect(first).toBe(2);
+	});
+
+	it("Razz: 最も弱い（rank低い）アップカードが first actor", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		const p2 = makePlayer(2);
+
+		p0.upcards = [{ rank: "9", suit: "d" }];
+		p1.upcards = [{ rank: "4", suit: "s" }];
+		p2.upcards = [{ rank: "A", suit: "c" }]; // Razz 最強
+
+		const state = makeState([p0, p1, p2]);
+		state.street = "5th";
+		state.gameType = "RAZZ";
+
+		const first = getFirstActorForStreet(state);
+		expect(first).toBe(2);
 	});
 });

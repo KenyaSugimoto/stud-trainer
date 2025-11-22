@@ -1,7 +1,14 @@
 // ---- Game ----
 export type GameType = "STUD_HI" | "RAZZ" | "STUD_8";
 
-export type Street = "3rd" | "4th" | "5th" | "6th" | "7th";
+export type Street = "3rd" | "4th" | "5th" | "6th" | "7th" | "showdown";
+
+export interface Stakes {
+	ante: number; // アンティ額
+	bringIn: number; // ブリングイン額
+	smallBet: number; // 3rd〜4thのベット単位
+	bigBet: number; // 5th〜7thのベット単位
+}
 
 // ---- Card ----
 export type Suit = "s" | "h" | "d" | "c";
@@ -30,7 +37,7 @@ export interface PlayerState {
 
 // ---- Actions ----
 export interface Action {
-	player: number; // seat index
+	player: SeatIndex; // seat index
 	type: ActionType;
 	amount?: number;
 }
@@ -40,7 +47,7 @@ export interface ActionLog {
 	seat: SeatIndex;
 	action: ActionType;
 	cards: string; // 表示用 ("XxXx/Ac7d" など)
-	size?: number;
+	amount?: number;
 }
 
 // fold, call, bet, raise, check, bring-in, complete
@@ -49,6 +56,7 @@ export type ActionType = "f" | "c" | "b" | "r" | "x" | "bri" | "comp";
 // ---- GameState ----
 export interface GameState {
 	playerCount: number; // 2〜8
+	stakes: Stakes;
 	gameType: GameType;
 	players: PlayerState[]; // seat順
 	street: Street; // 現在のストリート
