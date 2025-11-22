@@ -38,13 +38,14 @@ export const applyAction = (state: GameState, action: ActionType, amount?: numbe
 		size: amount,
 	});
 
-	// --- 1人を除いて全員 fold → ハンド終了 ---
+	// --- 1人以下になったらハンド終了 ---
 	const aliveCount = state.players.filter((p) => p.alive).length;
-	if (aliveCount === 1) {
+	if (aliveCount <= 1) {
+		const winner = aliveCount === 1 ? state.players.findIndex((p) => p.alive) : null;
 		return {
 			...state,
 			handFinished: true,
-			winnerIndexes: [actor],
+			winnerIndexes: winner !== null ? [winner] : null,
 		};
 	}
 
