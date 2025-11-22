@@ -22,35 +22,35 @@ export const shuffle = (deck: Card[]): Card[] => {
 
 // 3rdのDeal
 export const deal3rd = (state: GameState): GameState => {
-  const deck = [...state.deck];
-  const players: PlayerState[] = state.players.map((p) => ({
-    ...p,
-    holeCards: [],
-    upcards: [],
-  }));
+	const deck = [...state.deck];
+	const players: PlayerState[] = state.players.map((p) => ({
+		...p,
+		holeCards: [],
+		upcards: [],
+	}));
 
-  // ---- 1. hole 2枚ずつ配る ----
-  for (let r = 0; r < 2; r++) {
-    for (let i = 0; i < state.playerCount; i++) {
-      const card = deck.shift();
-      if (!card) throw new Error("Deck is empty!");
-      players[i].holeCards.push(card);
-    }
-  }
+	// ---- 1. hole 2枚ずつ配る ----
+	for (let r = 0; r < 2; r++) {
+		for (let i = 0; i < state.playerCount; i++) {
+			const card = deck.shift();
+			if (!card) throw new Error("Deck is empty!");
+			players[i].holeCards.push(card);
+		}
+	}
 
-  // ---- 2. upcard 1枚配る ----
-  for (let i = 0; i < state.playerCount; i++) {
-    const card = deck.shift();
-    if (!card) throw new Error("Deck is empty!");
-    players[i].upcards.push(card);
-  }
+	// ---- 2. upcard 1枚配る ----
+	for (let i = 0; i < state.playerCount; i++) {
+		const card = deck.shift();
+		if (!card) throw new Error("Deck is empty!");
+		players[i].upcards.push(card);
+	}
 
-  return {
-    ...state,
-    deck,
-    players,
-    street: "3rd",
-    actionsThisStreet: [],
-    bringInIndex: null, // ← この後に計算する
-  };
+	return {
+		...state,
+		deck,
+		players,
+		street: "3rd",
+		actionsThisStreet: [],
+		bringInIndex: null, // ← この後に計算する
+	};
 };
