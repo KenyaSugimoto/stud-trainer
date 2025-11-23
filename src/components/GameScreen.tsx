@@ -36,8 +36,8 @@ export const GameScreen = () => {
 			<h3 className="text-md">Action: {player.name}</h3>
 
 			<div className="overflow-y-auto max-h-96">
-				{gameState.players.map((p, idx) => (
-					<div key={p.name} className={`p-2 my-2 border ${idx === actor ? "bg-yellow-900" : ""}`}>
+				{gameState.players.map((p) => (
+					<div key={p.name} className={`p-2 my-2 border ${p.seat === actor ? "bg-yellow-900" : ""}`}>
 						<p>
 							{p.name} {p.alive ? "" : "(Folded)"}
 						</p>

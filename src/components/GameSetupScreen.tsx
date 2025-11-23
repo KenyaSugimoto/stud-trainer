@@ -37,7 +37,7 @@ export const GameSetupScreen = () => {
 				>
 					<option value="STUD_HI">Seven Card Stud (Hi)</option>
 					<option value="RAZZ">Razz</option>
-					<option value="STUD8">Stud Hi-Lo 8orBetter</option>
+					<option value="STUD8">Stud Hi-Lo 8-or-Better</option>
 				</select>
 			</div>
 

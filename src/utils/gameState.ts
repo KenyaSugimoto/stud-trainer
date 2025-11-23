@@ -66,9 +66,7 @@ export const goToNextStreet = (state: GameState): GameState => {
 	// ★ 4th〜7th のカード配り
 	//------------------------------------
 
-	// 使うデッキをコピー
 	const deck = gs.deck;
-
 	gs.players.forEach((p) => {
 		if (!p.alive) return;
 

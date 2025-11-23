@@ -1,4 +1,5 @@
 import {
+	AGGRESSIVE_ACTIONS,
 	MAX_RAISES_PER_STREET,
 	rankHiValue,
 	rankRazzValue,
@@ -12,11 +13,15 @@ import { computeBringIn } from "./bringIn";
 export const getNextActorIndex = (state: GameState): SeatIndex => {
 	const count = state.playerCount;
 	let idx = state.currentActorIndex;
+	let checked = 0;
 
-	while (true) {
+	while (checked < count) {
 		idx = (idx + 1) % count;
+		checked++;
 		if (state.players[idx].alive) return idx as SeatIndex;
 	}
+
+	throw new Error("次のアクターが見つかりません（全プレイヤーが非アクティブ）");
 };
 
 // 指定したプレイヤーが実行可能なアクションを取得
@@ -28,10 +33,9 @@ export const getAllowedActions = (state: GameState, seat: number): ActionType[] 
 	const isBringIn = street === "3rd" && state.bringInIndex === seat;
 
 	// このストリートの誰かが bet / comp / raise をしたか？
-	const someoneBet = actions.some((a) => a.type === "b" || a.type === "comp" || a.type === "r");
-
-	// raise の回数（bet/comp/r を全部カウント）
-	const raiseCount = actions.filter((a) => a.type === "b" || a.type === "comp" || a.type === "r").length;
+	const someoneBet = actions.some((a) => AGGRESSIVE_ACTIONS.includes(a.type));
+	// raise 回数カウント
+	const raiseCount = actions.filter((a) => AGGRESSIVE_ACTIONS.includes(a.type)).length;
 	const canRaise = raiseCount < MAX_RAISES_PER_STREET;
 
 	// -----------------------
@@ -94,9 +98,7 @@ export const shouldEndStreet = (state: GameState): boolean => {
 	if (alive.length <= 1) return true;
 
 	// --- 2. aggressor（最後にレイズした player）を探す ---
-	const latestAggressiveAction = [...actions]
-		.reverse()
-		.find((a) => a.type === "b" || a.type === "comp" || a.type === "r");
+	const latestAggressiveAction = [...actions].reverse().find((a) => AGGRESSIVE_ACTIONS.includes(a.type));
 
 	let aggressorSeat: SeatIndex | null = null;
 	if (latestAggressiveAction) {

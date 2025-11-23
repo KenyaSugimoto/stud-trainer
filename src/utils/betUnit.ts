@@ -22,6 +22,11 @@ export const getToCall = (state: GameState, seat: number): number => {
 export const calcBetAmount = (state: GameState, seat: number, actionType: ActionType): number => {
 	const { stakes, street } = state;
 
+	// showdown ではベットが発生しないので0で返す
+	if (street === "showdown") {
+		return 0;
+	}
+
 	const toCall = getToCall(state, seat);
 	const unit = getStreetBetUnit(state);
 

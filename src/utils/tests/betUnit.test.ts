@@ -93,4 +93,10 @@ describe("calcBetAmount", () => {
 		// raise → toCall + unit → 1000 + 1000 = 2000
 		expect(calcBetAmount(state, 0, "r")).toBe(2000);
 	});
+
+	it("showdown では常に 0 を返す", () => {
+		const state = makeState([makePlayer(0)], "showdown");
+		expect(calcBetAmount(state, 0, "b")).toBe(0);
+		expect(calcBetAmount(state, 0, "r")).toBe(0);
+	});
 });
