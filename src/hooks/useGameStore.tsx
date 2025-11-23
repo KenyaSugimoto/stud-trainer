@@ -11,7 +11,6 @@ import { goToNextStreet, initGameState } from "../utils/gameState";
 type GameStore = {
 	gameState: GameState | null;
 
-	//
 	startGame: (playerCount: number, gameType: GameType) => void;
 
 	applyAction: (action: ActionType, seat: SeatIndex) => void;
