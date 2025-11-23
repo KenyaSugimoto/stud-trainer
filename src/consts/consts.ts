@@ -5,6 +5,7 @@ export const RANKS: Rank[] = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", 
 
 export const TERMINAL_ACTIONS_VS_BET: ActionType[] = ["c", "f"];
 export const AGGRESSIVE_ACTIONS: ActionType[] = ["b", "r", "comp"];
+export const BET_ACTIONS: ActionType[] = ["bri", "comp", "b", "r"];
 
 // 1ストリートあたりの最大raise回数
 export const MAX_RAISES_PER_STREET = 5;

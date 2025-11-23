@@ -115,6 +115,7 @@ describe("shouldEndStreet", () => {
 		p1.alive = false;
 
 		const state = makeState([p0, p1]);
+
 		expect(shouldEndStreet(state)).toBe(true);
 	});
 
@@ -133,9 +134,6 @@ describe("shouldEndStreet", () => {
 			{ type: "c", player: 0 },
 		];
 
-		state.currentActorIndex = 1;
-
-		// next actor は 0
 		expect(shouldEndStreet(state)).toBe(true);
 	});
 
@@ -149,26 +147,21 @@ describe("shouldEndStreet", () => {
 		const state = makeState([p0, p1]);
 
 		state.actionsThisStreet = [{ type: "b", player: 0 }];
-		state.currentActorIndex = 1;
 
 		expect(shouldEndStreet(state)).toBe(false);
 	});
 
-	it("レイズがない場合はストリート終了", () => {
+	it("4th Street でレイズがない場合、全員が x したらストリート終了", () => {
 		const p0 = makePlayer(0);
 		const p1 = makePlayer(1);
 
-		p0.totalBetThisRound = 0;
-		p1.totalBetThisRound = 0;
-
 		const state = makeState([p0, p1]);
+		state.street = "4th";
 
 		state.actionsThisStreet = [
 			{ type: "x", player: 0 },
 			{ type: "x", player: 1 },
 		];
-
-		state.currentActorIndex = 1;
 
 		expect(shouldEndStreet(state)).toBe(true);
 	});
@@ -187,7 +180,15 @@ describe("shouldEndStreet", () => {
 			{ type: "f", player: 1 },
 		];
 
-		state.currentActorIndex = 0;
+		expect(shouldEndStreet(state)).toBe(true);
+	});
+
+	it("ショウダウンなら常にストリート終了", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		const state = makeState([p0, p1]);
+		state.street = "showdown";
 
 		expect(shouldEndStreet(state)).toBe(true);
 	});

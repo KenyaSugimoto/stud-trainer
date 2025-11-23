@@ -1,5 +1,6 @@
 import {
 	AGGRESSIVE_ACTIONS,
+	BET_ACTIONS,
 	MAX_RAISES_PER_STREET,
 	rankHiValue,
 	rankRazzValue,
@@ -92,34 +93,63 @@ export const getActionLabel = (action: ActionType): string => {
 export const shouldEndStreet = (state: GameState): boolean => {
 	const actions = state.actionsThisStreet;
 	const players = state.players;
+	const alivePlayers = players.filter((p) => p.alive);
+	const street = state.street;
 
-	// --- 1. 一人を除いて全員 fold → ハンド終わり ---
-	const alive = players.filter((p) => p.alive);
-	if (alive.length <= 1) return true;
+	// alivePlayersが一人以下ならストリート終了
+	if (alivePlayers.length <= 1) return true;
 
-	// --- 2. aggressor（最後にレイズした player）を探す ---
-	const latestAggressiveAction = [...actions].reverse().find((a) => AGGRESSIVE_ACTIONS.includes(a.type));
+	// ショウダウンなら常にストリート終了
+	if (street === "showdown") return true;
 
-	let aggressorSeat: SeatIndex | null = null;
-	if (latestAggressiveAction) {
-		aggressorSeat = latestAggressiveAction.player;
+	//-----------------------------------------
+	// 1) BET_ACTION が一度もないケース
+	//-----------------------------------------
+	const lastBetIndex = (() => {
+		for (let i = actions.length - 1; i >= 0; i--) {
+			if (BET_ACTIONS.includes(actions[i].type)) return i;
+		}
+		// 一度も bet/raise/comp/bri がない
+		return -1;
+	})();
 
-		// アグレッサー以外のアクティブプレイヤー全員がcall or foldしていたらストリート終了
-		for (const p of alive) {
-			if (p.seat === aggressorSeat) continue; // aggressor 自身は除外
+	// 🔹 3rd Street ではチェックラウンドが存在しないので「一斉チェック」はありえない
+	if (street === "3rd" && lastBetIndex === -1) {
+		return false;
+	}
 
-			// このプレイヤーの最後のアクションを取得
-			const playerLastAction = actions.filter((a) => a.player === p.seat).slice(-1)[0];
-			// アクションしていない → 終了しない
-			if (!playerLastAction) return false;
-			// fold / call 以外のアクション → 終了しない
-			if (!TERMINAL_ACTIONS_VS_BET.includes(playerLastAction.type)) {
-				return false;
-			}
+	// 🔹 4th〜7th で、誰もベットせず「全員チェック」の場合だけ終了
+	if (street !== "3rd" && lastBetIndex === -1) {
+		const actedSet = new Set(actions.map((a) => a.player));
+		return alivePlayers.every((p) => actedSet.has(p.seat));
+	}
+
+	//-----------------------------------------
+	// 2) ここからベット or レイズ or complete/bri があるケース
+	//-----------------------------------------
+	const lastAggressor = actions[lastBetIndex].player;
+
+	// 最後のベット以降のアクションを抜き出す
+	const afterBet = actions.slice(lastBetIndex + 1);
+
+	for (const p of alivePlayers) {
+		if (p.seat === lastAggressor) continue;
+
+		const playerActs = afterBet.filter((a) => a.player === p.seat);
+
+		if (playerActs.length === 0) {
+			// このプレイヤーはまだベットに対して行動していない
+			return false;
+		}
+
+		const lastAction = playerActs[playerActs.length - 1];
+		if (!TERMINAL_ACTIONS_VS_BET.includes(lastAction.type)) {
+			// fold or call で完了していない
+			return false;
 		}
 	}
 
-	// 全ての alive プレイヤーが最後のベットに対して c か f 済み
+	// 全員アグレッサーのベットに対して c/f した → ストリート終了
 	return true;
 };
 
