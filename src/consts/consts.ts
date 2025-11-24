@@ -7,8 +7,8 @@ export const TERMINAL_ACTIONS_VS_BET: ActionType[] = ["c", "f"];
 export const AGGRESSIVE_ACTIONS: ActionType[] = ["b", "r", "comp"];
 export const BET_ACTIONS: ActionType[] = ["bri", "comp", "b", "r"];
 
-// 1ストリートあたりの最大raise回数
-export const MAX_RAISES_PER_STREET = 5;
+// 1ストリートあたりの最大raise回数 (最初のbetを1回と数えて5betまで)
+export const MAX_RAISES_PER_STREET = 4;
 
 // デフォルトのステークス設定
 export const DEFAULT_STAKES: Stakes = {

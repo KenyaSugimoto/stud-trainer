@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcBetAmount, getStreetBetUnit, getToCall } from "../betUnit";
+import { calcBetAmount, collectAntes, getStreetBetUnit, getToCall } from "../betUnit";
 import { makePlayer, makeState } from "./helpers";
 
 describe("getStreetBetUnit", () => {
@@ -98,5 +98,44 @@ describe("calcBetAmount", () => {
 		const state = makeState([makePlayer(0)], "showdown");
 		expect(calcBetAmount(state, 0, "b")).toBe(0);
 		expect(calcBetAmount(state, 0, "r")).toBe(0);
+	});
+});
+
+describe("collectAntes", () => {
+	it("全プレイヤーから ante を回収して pot に加算する", () => {
+		// players を用意
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		const state = makeState([p0, p1]);
+
+		const gs = collectAntes(state);
+
+		// ante総額 = 200 (100 * 2)
+		expect(gs.pot).toBe(200);
+
+		// stack が減っている
+		expect(gs.players[0].stack).toBe(900);
+		expect(gs.players[1].stack).toBe(900);
+		// totalBetThisRound は影響を受けない
+		expect(gs.players[0].totalBetThisRound).toBe(0);
+		expect(gs.players[1].totalBetThisRound).toBe(0);
+	});
+
+	it("片方がスタック不足でも、可能な分だけ ante を回収する", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+
+		p0.stack = 10; // ante 未満
+
+		const state = makeState([p0, p1]);
+
+		const gs = collectAntes(state);
+
+		// p0 は 10 しか払えない
+		// p1 は 100 払える → 合計 110
+		expect(gs.pot).toBe(110);
+		expect(gs.players[0].stack).toBe(0);
+		expect(gs.players[1].stack).toBe(900);
 	});
 });

@@ -36,7 +36,7 @@ export const getAllowedActions = (state: GameState, seat: number): ActionType[] 
 	// このストリートの誰かが bet / comp / raise をしたか？
 	const someoneBet = actions.some((a) => AGGRESSIVE_ACTIONS.includes(a.type));
 	// raise 回数カウント
-	const raiseCount = actions.filter((a) => AGGRESSIVE_ACTIONS.includes(a.type)).length;
+	const raiseCount = actions.filter((a) => a.type === "r").length;
 	const canRaise = raiseCount < MAX_RAISES_PER_STREET;
 
 	// -----------------------

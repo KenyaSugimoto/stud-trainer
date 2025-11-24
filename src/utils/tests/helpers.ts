@@ -1,5 +1,3 @@
-// test/helpers.ts
-
 import { DEFAULT_STAKES } from "../../consts/consts";
 import type { GameState, PlayerState, SeatIndex } from "../../types/types";
 
@@ -9,7 +7,7 @@ export function makePlayer(seat: SeatIndex): PlayerState {
 		name: `P${seat}`,
 		isHuman: false,
 		alive: true,
-		stack: 100,
+		stack: 1000,
 		holeCards: [],
 		upcards: [],
 		lastAction: null,

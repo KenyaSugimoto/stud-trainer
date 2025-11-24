@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 
 import type { ActionType, GameState, GameType, SeatIndex } from "../types/types";
 import { getFirstActorForStreet, getNextActorIndex, shouldEndStreet } from "../utils/actor";
-import { calcBetAmount } from "../utils/betUnit";
+import { calcBetAmount, collectAntes } from "../utils/betUnit";
 import { computeBringIn } from "../utils/bringIn";
 import { deal3rd } from "../utils/card";
 import { goToNextStreet, initGameState } from "../utils/gameState";
@@ -18,6 +18,7 @@ type GameStore = {
 	reset: () => void;
 };
 
+// TODO: テスト実装 (別チケットでする)
 export const useGameStore = create<GameStore>()(
 	devtools((set, get) => ({
 		gameState: null,
@@ -27,8 +28,14 @@ export const useGameStore = create<GameStore>()(
 		//-----------------------------------
 		startGame: (playerCount, gameType) => {
 			let gs = initGameState(playerCount, gameType);
+
+			// ante回収の処理
+			gs = collectAntes(gs);
+
+			// 3rd カード配布
 			gs = deal3rd(gs);
 
+			// bring-in プレイヤーの特定＆最初のアクターセット
 			gs.bringInIndex = computeBringIn(gs);
 			gs.currentActorIndex = gs.bringInIndex;
 
@@ -60,6 +67,7 @@ export const useGameStore = create<GameStore>()(
 			if (["c", "b", "r", "bri", "comp"].includes(action)) {
 				gs.pot += amount;
 				player.totalBetThisRound += amount;
+				player.stack -= amount;
 			}
 
 			// ---- 2. ログ追加 ----
@@ -94,6 +102,13 @@ export const useGameStore = create<GameStore>()(
 			// ---- 4. ストリート終了判定 ----
 			if (shouldEndStreet(gs)) {
 				gs = goToNextStreet(gs);
+
+				// showdownになった場合は勝者判定
+				if (gs.street === "showdown") {
+					// TODO: 役判定は後で実装
+					set({ gameState: gs }, false, "showdown");
+					return;
+				}
 
 				// 次のストリート開始プレイヤー
 				const nextActor = getFirstActorForStreet(gs);
