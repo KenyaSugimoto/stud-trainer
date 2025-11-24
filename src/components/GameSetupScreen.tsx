@@ -1,12 +1,11 @@
 // components/GameSetupScreen.tsx
 import { useState } from "react";
+import { useGameStore } from "../hooks/useGameStore";
 import type { GameType } from "../types/types";
 
-type Props = {
-	onStart: (playerCount: number, gameType: GameType) => void;
-};
+export const GameSetupScreen = () => {
+	const startGame = useGameStore((s) => s.startGame);
 
-export const GameSetupScreen = ({ onStart }: Props) => {
 	const [playerCount, setPlayerCount] = useState(2);
 	const [gameType, setGameType] = useState<GameType>("STUD_HI");
 
@@ -14,8 +13,7 @@ export const GameSetupScreen = ({ onStart }: Props) => {
 		<div className="p-4 flex flex-col items-center gap-6 text-center">
 			<h1 className="text-xl font-bold">ゲーム設定</h1>
 
-			{/* プレイ人数 */}
-			<div className="flex flex-col items-center gap-2">
+			<div>
 				<p className="font-semibold">プレイ人数</p>
 				<select
 					value={playerCount}
@@ -30,8 +28,7 @@ export const GameSetupScreen = ({ onStart }: Props) => {
 				</select>
 			</div>
 
-			{/* ゲームタイプ */}
-			<div className="flex flex-col items-center gap-2">
+			<div>
 				<p className="font-semibold">ゲームタイプ</p>
 				<select
 					value={gameType}
@@ -40,15 +37,14 @@ export const GameSetupScreen = ({ onStart }: Props) => {
 				>
 					<option value="STUD_HI">Seven Card Stud (Hi)</option>
 					<option value="RAZZ">Razz</option>
-					<option value="STUD8">Seven Card Stud 8-or-Better</option>
+					<option value="STUD_8">Stud Hi-Lo 8-or-Better</option>
 				</select>
 			</div>
 
-			{/* スタート */}
 			<button
 				type="button"
-				onClick={() => onStart(playerCount, gameType)}
-				className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+				onClick={() => startGame(playerCount, gameType)}
+				className="px-4 py-2 bg-blue-600 text-white rounded"
 			>
 				START
 			</button>

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { GameState, PlayerState, Rank, Suit } from "../../types/types";
+import { DEFAULT_STAKES } from "../../consts/consts";
+import type { GameState, PlayerState, Rank, SeatIndex, Suit } from "../../types/types";
 import { computeBringIn } from "../bringIn";
 
 // ヘルパー：アップカード1枚だけ持つ Player を作る
-function makePlayer(seat: number, rank: Rank, suit: Suit): PlayerState {
+function makePlayer(seat: SeatIndex, rank: Rank, suit: Suit): PlayerState {
 	return {
 		seat,
 		name: `P${seat}`,
@@ -21,6 +22,7 @@ function makePlayer(seat: number, rank: Rank, suit: Suit): PlayerState {
 function makeState(players: PlayerState[], gameType: GameState["gameType"]): GameState {
 	return {
 		playerCount: players.length,
+		stakes: DEFAULT_STAKES,
 		players,
 		street: "3rd",
 		deck: [],
