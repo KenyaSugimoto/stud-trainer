@@ -1,8 +1,8 @@
 import { rankHiValue } from "../consts/consts";
-import { type Card, type Evaluate7Result, HAND_RANK, type HandRank } from "../types/types";
+import { type Card, type Evaluate5Result, type Evaluate7Result, HAND_RANK, type HandRank } from "../types/types";
 
 // 5枚から役を判定する
-export const evaluate5 = (hand: Card[]): Evaluate7Result => {
+export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	const ranks = hand.map((c) => rankHiValue[c.rank]).sort((a, b) => b - a);
 	const suits = hand.map((c) => c.suit);
 
@@ -16,7 +16,9 @@ export const evaluate5 = (hand: Card[]): Evaluate7Result => {
 
 	if (sorted[0] - sorted[4] === 4 && new Set(sorted).size === 5) {
 		isStraight = true;
-	} else if (sorted.toString() === "14,5,4,3,2") {
+	}
+	const isWheel = sorted.length === 5 && sorted[0] === 14 && sorted[1] === 5 && sorted[4] === 2;
+	if (isWheel) {
 		isStraight = true;
 		straightTop = 5;
 	}
@@ -128,7 +130,7 @@ export const evaluateHandHi = (cards: Card[]): Evaluate7Result => {
 			const hand = cards.filter((_, idx) => idx !== i && idx !== j);
 			const res = evaluate5(hand);
 
-			if (isBetterHand(res.rank as HandRank, res.score, best.rank, best.score)) {
+			if (isBetterHand(res.rank, res.score, best.rank, best.score)) {
 				best = {
 					rank: res.rank,
 					score: res.score,

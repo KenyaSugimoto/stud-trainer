@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-import type { ActionType, GameState, GameType, SeatIndex } from "../types/types";
+import type { ActionType, GameState, GameType, HandRank, SeatIndex } from "../types/types";
 import { getFirstActorForStreet, getNextActorIndex, shouldEndStreet } from "../utils/actor";
 import { calcBetAmount, collectAntes } from "../utils/betUnit";
 import { computeBringIn } from "../utils/bringIn";
 import { deal3rd } from "../utils/card";
-import { evaluateHandHi } from "../utils/evaluateHand";
+import { evaluateHandHi, isBetterHand } from "../utils/evaluateHand";
 import { goToNextStreet, initGameState } from "../utils/gameState";
 
 type GameStore = {
@@ -108,24 +108,29 @@ export const useGameStore = create<GameStore>()(
 				if (gs.street === "showdown") {
 					const alive = gs.players.filter((p) => p.alive);
 
-					let bestRank = -1;
+					let bestRank: HandRank | null = null;
 					let bestScore: number[] = [];
 					let winners: number[] = [];
 
 					for (const p of alive) {
 						const allCards = [...p.holeCards, ...p.upcards];
-						// 役判定 (TODO: 後でRazzやStud8にも対応させる)
+
+						// 役判定（現状は Stud Hi のみ）
 						const hand = evaluateHandHi(allCards);
 
-						if (
-							hand.rank !== null &&
-							(hand.rank > bestRank || (hand.rank === bestRank && hand.score.join(",") > bestScore.join(",")))
-						) {
-							bestRank = hand.rank;
+						if (isBetterHand(hand.rank as HandRank, hand.score, bestRank, bestScore)) {
+							// 新しいベストハンド
+							bestRank = hand.rank as HandRank;
 							bestScore = hand.score;
 							winners = [p.seat];
-						} else if (hand.rank === bestRank && hand.score.join(",") === bestScore.join(",")) {
-							winners.push(p.seat); // Split pot（同点）
+						} else if (
+							bestRank !== null &&
+							hand.rank === bestRank &&
+							hand.score.length === bestScore.length &&
+							hand.score.every((v, i) => v === bestScore[i])
+						) {
+							// 完全同点 → Split pot
+							winners.push(p.seat);
 						}
 					}
 

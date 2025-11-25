@@ -94,3 +94,9 @@ export type Evaluate7Result = {
 	score: number[];
 	hand: Card[]; // ベスト5枚
 };
+
+export type Evaluate5Result = {
+	rank: HandRank;
+	score: number[];
+	hand: Card[]; // ベスト5枚
+};
