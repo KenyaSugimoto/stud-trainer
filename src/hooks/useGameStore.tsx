@@ -6,6 +6,7 @@ import { getFirstActorForStreet, getNextActorIndex, shouldEndStreet } from "../u
 import { calcBetAmount, collectAntes } from "../utils/betUnit";
 import { computeBringIn } from "../utils/bringIn";
 import { deal3rd } from "../utils/card";
+import { evaluateHandHi } from "../utils/evaluateHand";
 import { goToNextStreet, initGameState } from "../utils/gameState";
 
 type GameStore = {
@@ -105,7 +106,32 @@ export const useGameStore = create<GameStore>()(
 
 				// showdownになった場合は勝者判定
 				if (gs.street === "showdown") {
-					// TODO: 役判定は後で実装
+					const alive = gs.players.filter((p) => p.alive);
+
+					let bestRank = -1;
+					let bestScore: number[] = [];
+					let winners: number[] = [];
+
+					for (const p of alive) {
+						const allCards = [...p.holeCards, ...p.upcards];
+						// 役判定 (TODO: 後でRazzやStud8にも対応させる)
+						const hand = evaluateHandHi(allCards);
+
+						if (
+							hand.rank !== null &&
+							(hand.rank > bestRank || (hand.rank === bestRank && hand.score.join(",") > bestScore.join(",")))
+						) {
+							bestRank = hand.rank;
+							bestScore = hand.score;
+							winners = [p.seat];
+						} else if (hand.rank === bestRank && hand.score.join(",") === bestScore.join(",")) {
+							winners.push(p.seat); // Split pot（同点）
+						}
+					}
+
+					gs.handFinished = true;
+					gs.winnerIndexes = winners;
+
 					set({ gameState: gs }, false, "showdown");
 					return;
 				}

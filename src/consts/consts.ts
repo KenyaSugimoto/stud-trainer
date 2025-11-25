@@ -27,7 +27,7 @@ export const suitValue = {
 };
 
 // rank を数値化（Stud Hi / Stud8）
-export const rankHiValue: Record<string, number> = {
+export const rankHiValue: Record<Rank, number> = {
 	A: 14,
 	K: 13,
 	Q: 12,
@@ -44,7 +44,7 @@ export const rankHiValue: Record<string, number> = {
 };
 
 // rank を数値化（Razz用：A が最も低い = 最良）
-export const rankRazzValue: Record<string, number> = {
+export const rankRazzValue: Record<Rank, number> = {
 	A: 1,
 	2: 2,
 	3: 3,

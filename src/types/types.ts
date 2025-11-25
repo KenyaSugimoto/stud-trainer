@@ -12,7 +12,7 @@ export interface Stakes {
 
 // ---- Card ----
 export type Suit = "s" | "h" | "d" | "c";
-export type Rank = "A" | "K" | "Q" | "J" | "T" | "9" | "8" | "7" | "6" | "5" | "4" | "3" | "2" | "X";
+export type Rank = "A" | "K" | "Q" | "J" | "T" | "9" | "8" | "7" | "6" | "5" | "4" | "3" | "2";
 
 export interface Card {
 	rank: Rank;
@@ -72,3 +72,25 @@ export interface GameState {
 	handFinished: boolean;
 	winnerIndexes: number[] | null;
 }
+
+export const HAND_RANK = {
+	ROYAL_FLUSH: 9,
+	STRAIGHT_FLUSH: 8,
+	FOUR_OF_A_KIND: 7,
+	FULL_HOUSE: 6,
+	FLUSH: 5,
+	STRAIGHT: 4,
+	THREE_OF_A_KIND: 3,
+	TWO_PAIR: 2,
+	ONE_PAIR: 1,
+	HIGH_CARD: 0,
+} as const;
+
+// Rank の型
+export type HandRank = (typeof HAND_RANK)[keyof typeof HAND_RANK];
+
+export type Evaluate7Result = {
+	rank: HandRank | null;
+	score: number[];
+	hand: Card[]; // ベスト5枚
+};
