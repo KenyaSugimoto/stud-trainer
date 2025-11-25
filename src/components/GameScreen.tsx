@@ -32,6 +32,10 @@ export const GameScreen = () => {
 	return (
 		<div className="p-4">
 			<h1>{gameState.gameType}</h1>
+			<h2>
+				ante: {gameState.stakes.ante}, bring-in: {gameState.stakes.bringIn}, complete: {gameState.stakes.smallBet},
+				bigBet: {gameState.stakes.bigBet}
+			</h2>
 			<h2 className="text-lg font-bold">Street: {gameState.street}</h2>
 			<h3 className="text-md">Action: {player.name}</h3>
 
@@ -41,6 +45,8 @@ export const GameScreen = () => {
 						<p>
 							{p.name} {p.alive ? "" : "(Folded)"}
 						</p>
+						<p>Stack: {p.stack}</p>
+						<p>Total Bet This Round: {p.totalBetThisRound}</p>
 						<p>Hole Cards: {p.holeCards.map((c) => `${c.rank}${c.suit}`).join(", ")}</p>
 						<p>Upcards: {p.upcards.map((c) => `${c.rank}${c.suit}`).join(", ")}</p>
 					</div>

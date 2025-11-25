@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_INITIAL_STACK } from "../../consts/consts";
 import { calcBetAmount, collectAntes, getStreetBetUnit, getToCall } from "../betUnit";
 import { makePlayer, makeState } from "./helpers";
 
@@ -115,8 +116,8 @@ describe("collectAntes", () => {
 		expect(gs.pot).toBe(200);
 
 		// stack が減っている
-		expect(gs.players[0].stack).toBe(900);
-		expect(gs.players[1].stack).toBe(900);
+		expect(gs.players[0].stack).toBe(DEFAULT_INITIAL_STACK - 100);
+		expect(gs.players[1].stack).toBe(DEFAULT_INITIAL_STACK - 100);
 		// totalBetThisRound は影響を受けない
 		expect(gs.players[0].totalBetThisRound).toBe(0);
 		expect(gs.players[1].totalBetThisRound).toBe(0);
@@ -136,6 +137,6 @@ describe("collectAntes", () => {
 		// p1 は 100 払える → 合計 110
 		expect(gs.pot).toBe(110);
 		expect(gs.players[0].stack).toBe(0);
-		expect(gs.players[1].stack).toBe(900);
+		expect(gs.players[1].stack).toBe(DEFAULT_INITIAL_STACK - 100);
 	});
 });

@@ -1,5 +1,6 @@
 // components/GameSetupScreen.tsx
 import { useState } from "react";
+import { DEFAULT_INITIAL_STACK } from "../consts/consts";
 import { useGameStore } from "../hooks/useGameStore";
 import type { GameType } from "../types/types";
 
@@ -8,6 +9,7 @@ export const GameSetupScreen = () => {
 
 	const [playerCount, setPlayerCount] = useState(2);
 	const [gameType, setGameType] = useState<GameType>("STUD_HI");
+	const [initialStack, setInitialStack] = useState(DEFAULT_INITIAL_STACK);
 
 	return (
 		<div className="p-4 flex flex-col items-center gap-6 text-center">
@@ -41,9 +43,21 @@ export const GameSetupScreen = () => {
 				</select>
 			</div>
 
+			{/* ★ 初期スタック */}
+			<div>
+				<p className="font-semibold">初期スタック</p>
+				<input
+					type="number"
+					value={initialStack}
+					onChange={(e) => setInitialStack(Number(e.target.value))}
+					className="border p-2 rounded w-32 text-center"
+					min={1}
+				/>
+			</div>
+
 			<button
 				type="button"
-				onClick={() => startGame(playerCount, gameType)}
+				onClick={() => startGame(playerCount, gameType, initialStack)}
 				className="px-4 py-2 bg-blue-600 text-white rounded"
 			>
 				START

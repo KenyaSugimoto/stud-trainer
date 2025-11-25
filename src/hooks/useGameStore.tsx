@@ -12,7 +12,7 @@ import { goToNextStreet, initGameState } from "../utils/gameState";
 type GameStore = {
 	gameState: GameState | null;
 
-	startGame: (playerCount: number, gameType: GameType) => void;
+	startGame: (playerCount: number, gameType: GameType, initialStack: number) => void;
 
 	applyAction: (action: ActionType, seat: SeatIndex) => void;
 
@@ -27,8 +27,8 @@ export const useGameStore = create<GameStore>()(
 		//-----------------------------------
 		// Start Game
 		//-----------------------------------
-		startGame: (playerCount, gameType) => {
-			let gs = initGameState(playerCount, gameType);
+		startGame: (playerCount, gameType, initialStack) => {
+			let gs = initGameState(playerCount, gameType, initialStack);
 
 			// ante回収の処理
 			gs = collectAntes(gs);

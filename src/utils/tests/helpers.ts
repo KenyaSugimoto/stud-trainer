@@ -1,4 +1,4 @@
-import { DEFAULT_STAKES } from "../../consts/consts";
+import { DEFAULT_INITIAL_STACK, DEFAULT_STAKES } from "../../consts/consts";
 import type { GameState, PlayerState, SeatIndex } from "../../types/types";
 
 export function makePlayer(seat: SeatIndex): PlayerState {
@@ -7,7 +7,7 @@ export function makePlayer(seat: SeatIndex): PlayerState {
 		name: `P${seat}`,
 		isHuman: false,
 		alive: true,
-		stack: 1000,
+		stack: DEFAULT_INITIAL_STACK,
 		holeCards: [],
 		upcards: [],
 		lastAction: null,

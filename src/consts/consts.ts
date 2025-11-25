@@ -18,6 +18,9 @@ export const DEFAULT_STAKES: Stakes = {
 	bigBet: 1000,
 };
 
+// デフォルトの初期スタック
+export const DEFAULT_INITIAL_STACK = 30000;
+
 // スート順位（♣ < ♦ < ♥ < ♠）
 export const suitValue = {
 	c: 1,

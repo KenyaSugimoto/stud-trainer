@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { RANKS, SUITS } from "../../consts/consts";
+import { DEFAULT_INITIAL_STACK, RANKS, SUITS } from "../../consts/consts";
 import { createDeck, deal3rd, shuffle } from "../card";
 import { initGameState } from "../gameState";
 
@@ -73,7 +73,7 @@ describe("shuffle", () => {
 
 describe("deal3rd", () => {
 	it("hole 2枚・upcard 1枚を各プレイヤーに配る", () => {
-		const gs = initGameState(3, "STUD_HI"); // 3人でテスト
+		const gs = initGameState(3, "STUD_HI", DEFAULT_INITIAL_STACK); // 3人でテスト
 		const newState = deal3rd(gs);
 
 		for (let i = 0; i < 3; i++) {
@@ -85,7 +85,7 @@ describe("deal3rd", () => {
 
 	it("デッキから 3 * playerCount 枚が減っている", () => {
 		const playerCount = 4;
-		const gs = initGameState(playerCount, "STUD_HI");
+		const gs = initGameState(playerCount, "STUD_HI", DEFAULT_INITIAL_STACK);
 
 		const beforeLen = gs.deck.length;
 		const newState = deal3rd(gs);
@@ -95,7 +95,7 @@ describe("deal3rd", () => {
 	});
 
 	it("元の state を破壊しない（プレイヤー配列が新しい）", () => {
-		const gs = initGameState(3, "STUD_HI");
+		const gs = initGameState(3, "STUD_HI", DEFAULT_INITIAL_STACK);
 		const newState = deal3rd(gs);
 
 		// players 配列が別オブジェクトである
@@ -108,7 +108,7 @@ describe("deal3rd", () => {
 	});
 
 	it("state の基本プロパティが正しく設定される", () => {
-		const gs = initGameState(2, "STUD_HI");
+		const gs = initGameState(2, "STUD_HI", DEFAULT_INITIAL_STACK);
 		const newState = deal3rd(gs);
 
 		expect(newState.street).toBe("3rd");
@@ -117,7 +117,7 @@ describe("deal3rd", () => {
 	});
 
 	it("配られた全カードは元のデッキ内に存在し、重複しない", () => {
-		const gs = initGameState(4, "STUD_HI");
+		const gs = initGameState(4, "STUD_HI", DEFAULT_INITIAL_STACK);
 		const baseDeck = [...gs.deck];
 
 		const newState = deal3rd(gs);
@@ -150,7 +150,7 @@ describe("deal3rd", () => {
 	});
 
 	it("デッキの先頭から順にカードが配られている", () => {
-		const gs = initGameState(3, "STUD_HI");
+		const gs = initGameState(3, "STUD_HI", DEFAULT_INITIAL_STACK);
 		const beforeDeck = [...gs.deck];
 
 		const newState = deal3rd(gs);
