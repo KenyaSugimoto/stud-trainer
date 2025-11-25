@@ -38,10 +38,21 @@ export const GameScreen = () => {
 			</h2>
 			<h2 className="text-lg font-bold">Street: {gameState.street}</h2>
 			<h3 className="text-md">Action: {player.name}</h3>
+			<h3 className="text-md">Pot: {gameState.pot}</h3>
+			<h3>
+				winner:{" "}
+				{gameState.winnerIndexes
+					? gameState.winnerIndexes.map((idx) => gameState.players[idx].name).join(", ")
+					: "None"}
+			</h3>
 
+			{/* プレイヤー情報一覧 */}
 			<div className="overflow-y-auto max-h-96">
 				{gameState.players.map((p) => (
-					<div key={p.name} className={`p-2 my-2 border ${p.seat === actor ? "bg-yellow-900" : ""}`}>
+					<div
+						key={p.name}
+						className={`p-2 my-2 border ${gameState.winnerIndexes?.includes(p.seat) ? "bg-red-900" : p.seat === actor && gameState.street !== "showdown" ? "bg-yellow-900" : ""}`}
+					>
 						<p>
 							{p.name} {p.alive ? "" : "(Folded)"}
 						</p>
@@ -53,7 +64,7 @@ export const GameScreen = () => {
 				))}
 			</div>
 
-			{player.isHuman && !gameState.handFinished && (
+			{!gameState.handFinished && (
 				<div className="mt-4 flex gap-2">
 					{allowed.map((action) => (
 						<button key={action} type="button" onClick={() => applyAction(action, actor)}>

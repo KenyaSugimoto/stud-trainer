@@ -43,12 +43,22 @@ export const getAllowedActions = (state: GameState, seat: number): ActionType[] 
 	// 3RD STREET（bring-in ラウンド）
 	// -----------------------
 	if (street === "3rd") {
-		if (isBringIn) {
-			// bring-in プレイヤーは bri / comp のみ
+		// briがされているかどうか
+		const bringInDone = actions.some((a) => a.type === "bri");
+
+		if (isBringIn && !bringInDone) {
+			// bring-in プレイヤーがまだbri or comp していない場合
 			return ["bri", "comp"];
 		}
 
-		// bring-in 以外は fold / call / raise（raise は5betまで）
+		// まだ1回もcomp されていない場合は complete が可能
+		const canComplete = !actions.some((a) => a.type === "comp");
+		if (canComplete && !someoneBet) {
+			// comp 可能
+			return ["f", "c", "comp"];
+		}
+
+		// fold / call / raise（raise は5betまで）
 		const base: ActionType[] = ["f", "c"];
 		if (canRaise) base.push("r");
 		return base;

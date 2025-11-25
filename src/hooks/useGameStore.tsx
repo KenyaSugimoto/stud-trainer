@@ -137,6 +137,8 @@ export const useGameStore = create<GameStore>()(
 					gs.handFinished = true;
 					gs.winnerIndexes = winners;
 
+					// showdown時のチップの分配処理 (TODO: 別チケットで実装)
+
 					set({ gameState: gs }, false, "showdown");
 					return;
 				}
