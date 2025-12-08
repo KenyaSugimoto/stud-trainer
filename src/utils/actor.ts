@@ -14,6 +14,9 @@ import { computeBringIn } from "./bringIn";
 export const getNextActorIndex = (state: GameState): SeatIndex => {
 	const count = state.playerCount;
 	let idx = state.currentActorIndex;
+	if (idx === null) {
+		throw new Error("currentActorIndex is null");
+	}
 	let checked = 0;
 
 	while (checked < count) {
@@ -26,7 +29,7 @@ export const getNextActorIndex = (state: GameState): SeatIndex => {
 };
 
 // 指定したプレイヤーが実行可能なアクションを取得
-export const getAllowedActions = (state: GameState, seat: number): ActionType[] => {
+export const getAllowedActions = (state: GameState, seat: SeatIndex): ActionType[] => {
 	const street = state.street;
 	const actions = state.actionsThisStreet;
 

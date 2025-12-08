@@ -4,7 +4,7 @@ import type { ActionType } from "../types/types";
 import { getActionLabel, getAllowedActions } from "../utils/actor";
 
 export const GameScreen = () => {
-	const { gameState, applyAction } = useGameStore();
+	const { gameState, applyAction, startNextHand } = useGameStore();
 
 	// 現在のアクター
 	const actor = gameState?.currentActorIndex ?? null;
@@ -14,6 +14,10 @@ export const GameScreen = () => {
 
 		// bring-in 前の中途状態は空を返す
 		if (gameState.street === "3rd" && gameState.bringInIndex === null) {
+			return [];
+		}
+
+		if (gameState.currentActorIndex === null) {
 			return [];
 		}
 
@@ -71,6 +75,14 @@ export const GameScreen = () => {
 							{getActionLabel(action)}
 						</button>
 					))}
+				</div>
+			)}
+
+			{gameState.handFinished && (
+				<div className="mt-6">
+					<button type="button" className="px-4 py-2 bg-green-700 text-white rounded" onClick={() => startNextHand()}>
+						Next Hand
+					</button>
 				</div>
 			)}
 		</div>
