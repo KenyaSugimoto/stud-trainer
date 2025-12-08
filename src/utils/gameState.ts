@@ -2,7 +2,7 @@ import { DEFAULT_STAKES } from "../consts/consts";
 import type { GameState, GameType, PlayerState, SeatIndex } from "../types/types";
 import { createDeck, shuffle } from "./card";
 
-export const initGameState = (playerCount: number, gameType: GameType): GameState => {
+export const initGameState = (playerCount: number, gameType: GameType, initialStack: number): GameState => {
 	const deck = shuffle(createDeck());
 
 	const players: PlayerState[] = [];
@@ -14,7 +14,7 @@ export const initGameState = (playerCount: number, gameType: GameType): GameStat
 			name: isHuman ? "You" : `CPU${seat}`,
 			isHuman,
 			alive: true,
-			stack: 100,
+			stack: initialStack,
 			holeCards: [],
 			upcards: [],
 			lastAction: null,

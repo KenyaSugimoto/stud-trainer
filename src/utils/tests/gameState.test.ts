@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_INITIAL_STACK } from "../../consts/consts";
 import type { Card } from "../../types/types";
 import { createDeck } from "../card";
 import { goToNextStreet, initGameState } from "../gameState";
@@ -6,21 +7,21 @@ import { makePlayer, makeState } from "./helpers";
 
 describe("initGameState", () => {
 	it("正しいプレイヤー数でゲームステートを初期化する", () => {
-		const gs = initGameState(5, "STUD_HI");
+		const gs = initGameState(5, "STUD_HI", DEFAULT_INITIAL_STACK);
 
 		expect(gs.playerCount).toBe(5);
 		expect(gs.players).toHaveLength(5);
 	});
 
 	it("プレイヤーの初期値が正しい", () => {
-		const gs = initGameState(4, "STUD_HI");
+		const gs = initGameState(4, "STUD_HI", DEFAULT_INITIAL_STACK);
 
 		for (let i = 0; i < 4; i++) {
 			const p = gs.players[i];
 
 			expect(p.seat).toBe(i);
 			expect(p.alive).toBe(true);
-			expect(p.stack).toBe(100);
+			expect(p.stack).toBe(DEFAULT_INITIAL_STACK);
 			expect(p.holeCards).toEqual([]);
 			expect(p.upcards).toEqual([]);
 			expect(p.lastAction).toBeNull();
@@ -37,7 +38,7 @@ describe("initGameState", () => {
 	});
 
 	it("デッキが生成され 52 枚あり、シャッフルされている", () => {
-		const gs = initGameState(3, "STUD_HI");
+		const gs = initGameState(3, "STUD_HI", DEFAULT_INITIAL_STACK);
 
 		expect(gs.deck).toHaveLength(52);
 
@@ -52,7 +53,7 @@ describe("initGameState", () => {
 	});
 
 	it("ゲームステートの初期値が正しい", () => {
-		const gs = initGameState(3, "STUD_HI");
+		const gs = initGameState(3, "STUD_HI", DEFAULT_INITIAL_STACK);
 
 		expect(gs.street).toBe("3rd");
 		expect(gs.pot).toBe(0);

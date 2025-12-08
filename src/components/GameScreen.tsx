@@ -4,7 +4,7 @@ import type { ActionType } from "../types/types";
 import { getActionLabel, getAllowedActions } from "../utils/actor";
 
 export const GameScreen = () => {
-	const { gameState, applyAction } = useGameStore();
+	const { gameState, applyAction, startNextHand } = useGameStore();
 
 	// 現在のアクター
 	const actor = gameState?.currentActorIndex ?? null;
@@ -14,6 +14,10 @@ export const GameScreen = () => {
 
 		// bring-in 前の中途状態は空を返す
 		if (gameState.street === "3rd" && gameState.bringInIndex === null) {
+			return [];
+		}
+
+		if (gameState.currentActorIndex === null) {
 			return [];
 		}
 
@@ -32,28 +36,53 @@ export const GameScreen = () => {
 	return (
 		<div className="p-4">
 			<h1>{gameState.gameType}</h1>
+			<h2>
+				ante: {gameState.stakes.ante}, bring-in: {gameState.stakes.bringIn}, complete: {gameState.stakes.smallBet},
+				bigBet: {gameState.stakes.bigBet}
+			</h2>
 			<h2 className="text-lg font-bold">Street: {gameState.street}</h2>
 			<h3 className="text-md">Action: {player.name}</h3>
+			<h3 className="text-md">Pot: {gameState.pot}</h3>
+			<h3>
+				winner:{" "}
+				{gameState.winnerIndexes
+					? gameState.winnerIndexes.map((idx) => gameState.players[idx].name).join(", ")
+					: "None"}
+			</h3>
 
+			{/* プレイヤー情報一覧 */}
 			<div className="overflow-y-auto max-h-96">
 				{gameState.players.map((p) => (
-					<div key={p.name} className={`p-2 my-2 border ${p.seat === actor ? "bg-yellow-900" : ""}`}>
+					<div
+						key={p.name}
+						className={`p-2 my-2 border ${gameState.winnerIndexes?.includes(p.seat) ? "bg-red-900" : p.seat === actor && gameState.street !== "showdown" ? "bg-yellow-900" : ""}`}
+					>
 						<p>
 							{p.name} {p.alive ? "" : "(Folded)"}
 						</p>
+						<p>Stack: {p.stack}</p>
+						<p>Total Bet This Round: {p.totalBetThisRound}</p>
 						<p>Hole Cards: {p.holeCards.map((c) => `${c.rank}${c.suit}`).join(", ")}</p>
 						<p>Upcards: {p.upcards.map((c) => `${c.rank}${c.suit}`).join(", ")}</p>
 					</div>
 				))}
 			</div>
 
-			{player.isHuman && !gameState.handFinished && (
+			{!gameState.handFinished && (
 				<div className="mt-4 flex gap-2">
 					{allowed.map((action) => (
 						<button key={action} type="button" onClick={() => applyAction(action, actor)}>
 							{getActionLabel(action)}
 						</button>
 					))}
+				</div>
+			)}
+
+			{gameState.handFinished && (
+				<div className="mt-6">
+					<button type="button" className="px-4 py-2 bg-green-700 text-white rounded" onClick={() => startNextHand()}>
+						Next Hand
+					</button>
 				</div>
 			)}
 		</div>

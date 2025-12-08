@@ -28,7 +28,7 @@ describe("getNextActorIndex", () => {
 });
 
 describe("getAllowedActions - 3rd street", () => {
-	it("bring-in プレイヤーは bri/comp のみ", () => {
+	it("bring-in プレイヤーのファーストアクションは bri/comp のみ", () => {
 		const p0 = makePlayer(0);
 		const p1 = makePlayer(1);
 		const state = makeState([p0, p1], "3rd");
@@ -39,7 +39,7 @@ describe("getAllowedActions - 3rd street", () => {
 		expect(actions).toEqual(["bri", "comp"]);
 	});
 
-	it("bring-in 以外は fold / call / raise", () => {
+	it("まだcompleteがされていない状況でbring-in 以外は fold / call / comp", () => {
 		const p0 = makePlayer(0);
 		const p1 = makePlayer(1);
 		const state = makeState([p0, p1], "3rd");
@@ -49,7 +49,62 @@ describe("getAllowedActions - 3rd street", () => {
 
 		expect(actions).toContain("f");
 		expect(actions).toContain("c");
+		expect(actions).toContain("comp");
+	});
+
+	it("bring-in がされており、complete もされている場合は fold / call / raise", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		const state = makeState([p0, p1], "3rd");
+
+		state.bringInIndex = 0;
+		state.actionsThisStreet = [
+			{ type: "bri", player: 0, amount: 200 },
+			{ type: "comp", player: 1, amount: 500 },
+		];
+
+		const actions = getAllowedActions(state, 1);
+
+		expect(actions).toContain("f");
+		expect(actions).toContain("c");
 		expect(actions).toContain("r");
+	});
+
+	it("bring-in がされており、complete されていない場合は fold / call / comp", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		const state = makeState([p0, p1], "3rd");
+
+		state.bringInIndex = 0;
+		state.actionsThisStreet = [{ type: "bri", player: 0, amount: 200 }];
+
+		const actions = getAllowedActions(state, 1);
+
+		expect(actions).toContain("f");
+		expect(actions).toContain("c");
+		expect(actions).toContain("comp");
+	});
+
+	it("raise cap に達したら raise 不可", () => {
+		const p0 = makePlayer(0);
+		const p1 = makePlayer(1);
+		const state = makeState([p0, p1], "3rd");
+
+		state.bringInIndex = 0;
+		state.actionsThisStreet = [
+			{ type: "bri", player: 0, amount: 200 },
+			{ type: "comp", player: 1, amount: 500 },
+			{ type: "r", player: 0, amount: 1000 },
+			{ type: "r", player: 1, amount: 1500 },
+			{ type: "r", player: 0, amount: 2000 },
+			{ type: "r", player: 1, amount: 2500 },
+		];
+
+		const actions = getAllowedActions(state, 1);
+
+		expect(actions).toContain("f");
+		expect(actions).toContain("c");
+		expect(actions).not.toContain("r");
 	});
 });
 
