@@ -11,12 +11,12 @@ export interface FormFieldProps {
 export const FormField = ({ label, error, required, children, htmlFor }: FormFieldProps) => {
 	return (
 		<div className="flex flex-col gap-2">
-			<label htmlFor={htmlFor} className="font-semibold text-gray-700">
+			<label htmlFor={htmlFor} className="font-semibold text-gray-200">
 				{label}
-				{required && <span className="text-red-500 ml-1">*</span>}
+				{required && <span className="text-red-400 ml-1">*</span>}
 			</label>
 			{children}
-			{error && <p className="text-sm text-red-600">{error}</p>}
+			{error && <p className="text-sm text-red-400">{error}</p>}
 		</div>
 	);
 };
@@ -28,7 +28,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input = ({ error, className = "", ...props }: InputProps) => {
 	return (
 		<input
-			className={`border rounded px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${error ? "border-red-500" : "border-gray-300"} ${className}`}
+			className={`border rounded px-3 py-2 bg-gray-700 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${error ? "border-red-500" : ""} ${className}`}
 			{...props}
 		/>
 	);
@@ -42,11 +42,11 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 export const Select = ({ error, options, className = "", ...props }: SelectProps) => {
 	return (
 		<select
-			className={`border rounded px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${error ? "border-red-500" : "border-gray-300"} ${className}`}
+			className={`border rounded px-3 py-2 bg-gray-700 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${error ? "border-red-500" : ""} ${className}`}
 			{...props}
 		>
 			{options.map((opt) => (
-				<option key={opt.value} value={opt.value}>
+				<option key={opt.value} value={opt.value} className="bg-gray-700 text-white">
 					{opt.label}
 				</option>
 			))}

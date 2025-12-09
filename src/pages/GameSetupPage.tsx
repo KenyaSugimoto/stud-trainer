@@ -91,15 +91,15 @@ export const GameSetupPage = () => {
 
 	// success状態（通常表示）
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gray-900">
 			<div className="max-w-2xl mx-auto px-4 py-8">
 				{/* ページタイトル */}
 				<div className="mb-8 text-center">
-					<h2 className="text-3xl font-bold text-gray-900 mb-2">ゲーム設定</h2>
+					<h2 className="text-3xl font-bold text-white mb-2">ゲーム設定</h2>
 				</div>
 
 				{/* フォーム */}
-				<div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+				<div className="bg-gray-800 rounded-lg shadow-md p-6 space-y-6 border border-gray-700">
 					<FormField label="プレイヤー数" error={errors.playerCount} required>
 						<Select
 							value={playerCount.toString()}
@@ -144,21 +144,21 @@ export const GameSetupPage = () => {
 							<button
 								type="button"
 								onClick={() => setInitialStack(10000)}
-								className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors"
+								className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
 							>
 								10k
 							</button>
 							<button
 								type="button"
 								onClick={() => setInitialStack(20000)}
-								className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors"
+								className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
 							>
 								20k
 							</button>
 							<button
 								type="button"
 								onClick={() => setInitialStack(30000)}
-								className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors"
+								className="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
 							>
 								30k
 							</button>
@@ -167,8 +167,8 @@ export const GameSetupPage = () => {
 
 					{/* エラー表示 */}
 					{Object.keys(errors).length > 0 && (
-						<div className="bg-red-50 border border-red-200 rounded p-4">
-							<p className="text-sm text-red-600">入力内容を確認してください</p>
+						<div className="bg-red-900/50 border border-red-500 rounded p-4">
+							<p className="text-sm text-red-300">入力内容を確認してください</p>
 						</div>
 					)}
 				</div>
@@ -178,7 +178,7 @@ export const GameSetupPage = () => {
 					<button
 						type="button"
 						onClick={handleStartGame}
-						className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+						className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"
 					>
 						ゲーム開始
 					</button>
