@@ -18,9 +18,9 @@ export default function App() {
 
 	return (
 		<BrowserRouter>
-			<div className="min-h-screen bg-gray-50">
+			<div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
 				<AppHeader />
-				<main>
+				<main className="flex-1 min-h-0 overflow-hidden">
 					<Routes>
 						<Route path="/" element={<GameSetupPage />} />
 						<Route path="/game" element={<GamePage />} />

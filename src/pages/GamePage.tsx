@@ -6,7 +6,6 @@ import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { PokerTable } from "../components/poker/PokerTable";
-import { GAME_TYPE_LABELS } from "../consts/consts";
 import { useGameStore } from "../hooks/useGameStore";
 import { useToast } from "../hooks/useToast";
 import type { ActionType } from "../types/types";
@@ -123,46 +122,17 @@ export const GamePage = () => {
 	};
 
 	return (
-		<div className="h-screen bg-gray-900 overflow-hidden flex flex-col">
-			<div className="w-full mx-auto px-4 py-6 flex-1 overflow-y-auto flex flex-col">
-				{/* ゲーム情報ヘッダー */}
-				<div className="bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-700">
-					<div className="flex flex-wrap items-center justify-between gap-4">
-						<div>
-							<h2 className="text-xl font-bold text-white">{GAME_TYPE_LABELS[gameState.gameType]}</h2>
-							<p className="text-sm text-gray-300">
-								ストリート: <span className="font-semibold text-white">{gameState.street}</span>
-							</p>
-						</div>
-					</div>
-				</div>
-
-				{/* ショーダウン表示 一旦非表示 */}
-				{/* {gameState.street === "showdown" && gameState.handFinished && (
-					<div className="bg-green-900/50 border-2 border-green-500 rounded-lg p-4 mb-6">
-						<h3 className="text-xl font-bold text-white mb-2">Showdown</h3>
-						{gameState.winnerIndexes && gameState.winnerIndexes.length > 0 ? (
-							<div>
-								<p className="text-lg font-semibold text-green-300">
-									勝者: {gameState.winnerIndexes.map((idx) => gameState.players[idx].name).join(", ")}
-								</p>
-								{gameState.winnerIndexes.length > 1 && <p className="text-sm text-gray-300 mt-1">（Split Pot）</p>}
-							</div>
-						) : (
-							<p className="text-gray-300">勝者がいません</p>
-						)}
-					</div>
-				)} */}
-
-				{/* ポーカーテーブル */}
-				<div className="mb-6 flex-1 flex items-center justify-center min-h-0">
+		<div className="h-full bg-gray-900 overflow-hidden flex flex-col">
+			<div className="w-full mx-auto px-4 py-2 flex-1 flex flex-col min-h-0">
+				{/* ポーカーテーブル - 残りのスペースを占有、ただしアクションボタン群のスペースを確保 */}
+				<div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
 					<PokerTable gameState={gameState} currentActorIndex={actor} />
 				</div>
 
-				{/* アクションボタン群 */}
+				{/* アクションボタン群 - shrink-0で固定サイズ、確実に表示されるように */}
 				{!gameState.handFinished && (
-					<div className="bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-700">
-						<h3 className="text-lg font-semibold text-white mb-4">アクション</h3>
+					<div className="shrink-0 bg-gray-800 rounded-lg shadow-md p-3 mt-2 mb-2 border border-gray-700">
+						<h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">アクション</h3>
 						<div className="flex flex-wrap gap-2">
 							{allowed.length > 0 ? (
 								allowed.map((action) => (
@@ -170,37 +140,30 @@ export const GamePage = () => {
 										key={action}
 										type="button"
 										onClick={() => handleAction(action)}
-										className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+										className="px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
 									>
 										{getActionLabel(action)}
 									</button>
 								))
 							) : (
-								<p className="text-gray-400">アクション待機中...</p>
+								<p className="text-gray-400 text-sm md:text-base">アクション待機中...</p>
 							)}
 						</div>
 					</div>
 				)}
 
-				{/* Next Hand ボタン */}
+				{/* Next Hand ボタン - shrink-0で固定サイズ、確実に表示されるように */}
 				{gameState.handFinished && (
-					<div className="bg-gray-800 rounded-lg shadow-md p-4 border border-gray-700">
+					<div className="shrink-0 bg-gray-800 rounded-lg shadow-md p-3 mt-2 mb-2 border border-gray-700">
 						<button
 							type="button"
 							onClick={handleNextHand}
-							className="w-full px-6 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+							className="w-full px-4 py-3 md:px-6 md:py-4 bg-green-600 text-white text-base md:text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800"
 						>
 							Next Hand
 						</button>
 					</div>
 				)}
-
-				{/* アクションログ 一旦非表示 */}
-				{/* {gameState.logs.length > 0 && (
-					<div className="mb-6">
-						<StreetActionLog logs={gameState.logs} players={gameState.players} />
-					</div>
-				)} */}
 			</div>
 		</div>
 	);
