@@ -10,6 +10,7 @@ interface PlayerSeatProps {
 	isBringIn: boolean;
 	currentActorIndex: SeatIndex | null;
 	totalPlayers: number;
+	isShowdown: boolean;
 }
 
 // Assumption: 7-maxの座席位置（円形レイアウト）
@@ -39,7 +40,7 @@ const getSeatPosition = (seat: number, totalPlayers: number): { angle: number; r
 	return { angle, radiusX, radiusY };
 };
 
-export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers }: PlayerSeatProps) => {
+export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers, isShowdown }: PlayerSeatProps) => {
 	const [isDesktop, setIsDesktop] = useState(false);
 
 	useEffect(() => {
@@ -99,7 +100,6 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 						</span>
 						{isActor && <span className="text-[10px] md:text-xs bg-blue-500 text-white px-1 rounded">ACT</span>}
 						{isWinner && <span className="text-[10px] md:text-xs bg-green-500 text-white px-1 rounded">WIN</span>}
-						{isBringIn && <span className="text-[10px] md:text-xs bg-purple-500 text-white px-1 rounded">BI</span>}
 						{!player.alive && <span className="text-[10px] md:text-xs bg-gray-500 text-white px-1 rounded">FOLD</span>}
 					</div>
 					<div className="text-[10px] md:text-xs text-gray-300">${player.stack.toLocaleString()}</div>
@@ -120,7 +120,7 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 							{/* Hole Card 1 */}
 							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
 								{player.holeCards[0] ? (
-									<Card card={player.holeCards[0]} isHidden={!player.isHuman} size="sm" />
+									<Card card={player.holeCards[0]} isHidden={!player.isHuman && !isShowdown} size="sm" />
 								) : (
 									<div className="w-8 h-11 md:w-10 md:h-14" />
 								)}
@@ -128,7 +128,7 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 							{/* Hole Card 2 */}
 							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
 								{player.holeCards[1] ? (
-									<Card card={player.holeCards[1]} isHidden={!player.isHuman} size="sm" />
+									<Card card={player.holeCards[1]} isHidden={!player.isHuman && !isShowdown} size="sm" />
 								) : (
 									<div className="w-8 h-11 md:w-10 md:h-14" />
 								)}
@@ -171,7 +171,7 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 							{/* 最後のHole Card */}
 							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
 								{player.holeCards[2] ? (
-									<Card card={player.holeCards[2]} isHidden={!player.isHuman} size="sm" />
+									<Card card={player.holeCards[2]} isHidden={!player.isHuman && !isShowdown} size="sm" />
 								) : (
 									<div className="w-8 h-11 md:w-10 md:h-14" />
 								)}

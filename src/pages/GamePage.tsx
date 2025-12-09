@@ -137,8 +137,8 @@ export const GamePage = () => {
 					</div>
 				</div>
 
-				{/* ショーダウン表示 */}
-				{gameState.street === "showdown" && gameState.handFinished && (
+				{/* ショーダウン表示 一旦非表示 */}
+				{/* {gameState.street === "showdown" && gameState.handFinished && (
 					<div className="bg-green-900/50 border-2 border-green-500 rounded-lg p-4 mb-6">
 						<h3 className="text-xl font-bold text-white mb-2">Showdown</h3>
 						{gameState.winnerIndexes && gameState.winnerIndexes.length > 0 ? (
@@ -152,7 +152,7 @@ export const GamePage = () => {
 							<p className="text-gray-300">勝者がいません</p>
 						)}
 					</div>
-				)}
+				)} */}
 
 				{/* ポーカーテーブル */}
 				<div className="mb-6 flex-1 flex items-center justify-center min-h-0">
