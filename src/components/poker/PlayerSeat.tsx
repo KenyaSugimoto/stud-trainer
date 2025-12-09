@@ -7,7 +7,6 @@ interface PlayerSeatProps {
 	player: PlayerState;
 	isActor: boolean;
 	isWinner: boolean;
-	isBringIn: boolean;
 	currentActorIndex: SeatIndex | null;
 	totalPlayers: number;
 	isShowdown: boolean;
@@ -28,9 +27,9 @@ const getSeatPosition = (seat: number, totalPlayers: number): { angle: number; r
 	// 座席2: 90 + angleStep * 2度
 	const angle = (baseAngle + angleStep * seat) % 360;
 
-	// 半径はプレイヤー数に応じて調整（テーブルが広くなったので、より大きな半径に）
+	// 半径はプレイヤー数に応じて調整（スマホでの重なりを防ぐため、より大きな半径に）
 	// ベース半径を大きくして、座席間のゆとりを確保
-	const baseRadius = totalPlayers <= 3 ? 150 : totalPlayers <= 5 ? 180 : 220;
+	const baseRadius = totalPlayers <= 3 ? 180 : totalPlayers <= 5 ? 220 : 260;
 
 	// 楕円形の半径（スマホ/タブレット: 縦長、PC: 横長）
 	// モバイル: radiusY > radiusX（縦長）、デスクトップ: radiusX > radiusY（横長）
@@ -40,7 +39,7 @@ const getSeatPosition = (seat: number, totalPlayers: number): { angle: number; r
 	return { angle, radiusX, radiusY };
 };
 
-export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers, isShowdown }: PlayerSeatProps) => {
+export const PlayerSeat = ({ player, isActor, isWinner, totalPlayers, isShowdown }: PlayerSeatProps) => {
 	const [isDesktop, setIsDesktop] = useState(false);
 
 	useEffect(() => {
@@ -80,7 +79,7 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers,
 			}}
 		>
 			<div
-				className={`relative min-w-[120px] md:min-w-[140px] p-2 md:p-3 rounded-lg border-2 transition-all ${
+				className={`relative min-w-[100px] md:min-w-[140px] p-1.5 md:p-3 rounded-lg border-2 transition-all ${
 					isWinner
 						? "bg-green-900/70 border-green-500 shadow-lg scale-105 z-20"
 						: isActor
@@ -102,7 +101,6 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers,
 						{isWinner && <span className="text-[10px] md:text-xs bg-green-500 text-white px-1 rounded">WIN</span>}
 						{!player.alive && <span className="text-[10px] md:text-xs bg-gray-500 text-white px-1 rounded">FOLD</span>}
 					</div>
-					<div className="text-[10px] md:text-xs text-gray-300">${player.stack.toLocaleString()}</div>
 					{player.totalBetThisRound > 0 && (
 						<div className="text-[10px] md:text-xs text-blue-400 font-semibold">
 							Bet: ${player.totalBetThisRound.toLocaleString()}
@@ -110,78 +108,71 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers,
 					)}
 				</div>
 
-				{/* カード表示 - 7枚分の領域を確保
-					1行目: Hole Cards 2枚 + 最初のUpcard 1枚
-					2行目: 残りのUpcards 3枚 + 最後のHole Card 1枚 */}
+				{/* カード表示 - 1行で重ねて表示、Holeカードは上にずらす */}
 				{player.alive ? (
-					<div className="mb-1 md:mb-2">
-						{/* 1行目: Hole Cards 2枚 + 最初のUpcard 1枚 */}
-						<div className="flex gap-0.5 md:gap-1 justify-center items-center mb-0.5">
-							{/* Hole Card 1 */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.holeCards[0] ? (
+					<div className="mb-1 md:mb-2 relative h-[36px] md:h-[56px] flex items-center justify-center">
+						{/* カードを重ねて表示するコンテナ */}
+						{/* スマホ: カード幅32px、重ね幅10px、PC: カード幅40px、重ね幅12px */}
+						<div className="relative w-[90px] md:w-[108px] h-[36px] md:h-[56px]">
+							{/* カードの配布順序に基づいてz-indexを設定（後から配られるカードが上に重なる）
+								1. Hole Card 1 (最初) - z-index: 1
+								2. Hole Card 2 (2番目) - z-index: 2
+								3. Upcard 1 (3rd Street) - z-index: 3
+								4. Upcard 2 (4th Street) - z-index: 4
+								5. Upcard 3 (5th Street) - z-index: 5
+								6. Upcard 4 (6th Street) - z-index: 6
+								7. Hole Card 3 (7th Street、最後) - z-index: 7 (最上)
+							*/}
+							{/* Hole Card 1 - 通常位置 */}
+							{player.holeCards[0] && (
+								<div className="absolute" style={{ left: "0px", top: "5px", zIndex: 1 }}>
 									<Card card={player.holeCards[0]} isHidden={!player.isHuman && !isShowdown} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-							{/* Hole Card 2 */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.holeCards[1] ? (
+								</div>
+							)}
+							{/* Hole Card 2 - 通常位置 */}
+							{player.holeCards[1] && (
+								<div className="absolute md:left-[15px] left-[10px]" style={{ top: "5px", zIndex: 2 }}>
 									<Card card={player.holeCards[1]} isHidden={!player.isHuman && !isShowdown} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-							{/* 最初のUpcard */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.upcards[0] ? (
+								</div>
+							)}
+							{/* Upcard 1 - 上にずらす */}
+							{player.upcards[0] && (
+								<div className="absolute md:left-[30px] left-[20px]" style={{ top: "-5px", zIndex: 3 }}>
 									<Card card={player.upcards[0]} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-						</div>
-						{/* 2行目: 残りのUpcards 3枚 + 最後のHole Card 1枚 */}
-						<div className="flex gap-0.5 md:gap-1 justify-center items-center">
-							{/* Upcard 2 */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.upcards[1] ? (
+								</div>
+							)}
+							{/* Upcard 2 - 上にずらす */}
+							{player.upcards[1] && (
+								<div className="absolute md:left-[45px] left-[30px]" style={{ top: "-5px", zIndex: 4 }}>
 									<Card card={player.upcards[1]} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-							{/* Upcard 3 */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.upcards[2] ? (
+								</div>
+							)}
+							{/* Upcard 3 - 上にずらす */}
+							{player.upcards[2] && (
+								<div className="absolute md:left-[60px] left-[40px]" style={{ top: "-5px", zIndex: 5 }}>
 									<Card card={player.upcards[2]} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-							{/* Upcard 4 */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.upcards[3] ? (
+								</div>
+							)}
+							{/* Upcard 4 - 上にずらす */}
+							{player.upcards[3] && (
+								<div className="absolute md:left-[75px] left-[50px]" style={{ top: "-5px", zIndex: 6 }}>
 									<Card card={player.upcards[3]} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
-							{/* 最後のHole Card */}
-							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
-								{player.holeCards[2] ? (
+								</div>
+							)}
+							{/* Hole Card 3（最後のHole Card）- 通常位置、最上に重ねる */}
+							{player.holeCards[2] && (
+								<div className="absolute md:left-[90px] left-[60px]" style={{ top: "5px", zIndex: 7 }}>
 									<Card card={player.holeCards[2]} isHidden={!player.isHuman && !isShowdown} size="sm" />
-								) : (
-									<div className="w-8 h-11 md:w-10 md:h-14" />
-								)}
-							</div>
+								</div>
+							)}
 						</div>
 					</div>
 				) : (
 					/* Folded時も領域を確保 */
-					<div className="mb-1 md:mb-2 h-[60px] md:h-[72px]" />
+					<div className="mb-1 md:mb-2 h-[36px] md:h-[56px]" />
 				)}
+
+				<div className="text-[10px] md:text-xs text-gray-300 text-center">${player.stack.toLocaleString()}</div>
 
 				{/* 最終アクション */}
 				{player.lastAction && (

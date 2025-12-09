@@ -32,7 +32,6 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 				{activePlayers.map((player) => {
 					const isActor = player.seat === currentActorIndex && gameState.street !== "showdown";
 					const isWinner = gameState.winnerIndexes?.includes(player.seat) ?? false;
-					const isBringIn = player.seat === gameState.bringInIndex;
 					const isShowdown = gameState.street === "showdown";
 
 					return (
@@ -41,7 +40,6 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 							player={player}
 							isActor={isActor}
 							isWinner={isWinner}
-							isBringIn={isBringIn}
 							currentActorIndex={currentActorIndex}
 							totalPlayers={gameState.playerCount}
 							isShowdown={isShowdown}
