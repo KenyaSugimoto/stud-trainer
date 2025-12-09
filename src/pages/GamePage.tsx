@@ -6,7 +6,6 @@ import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 import { PokerTable } from "../components/poker/PokerTable";
-import { StreetActionLog } from "../components/poker/StreetActionLog";
 import { GAME_TYPE_LABELS } from "../consts/consts";
 import { useGameStore } from "../hooks/useGameStore";
 import { useToast } from "../hooks/useToast";
@@ -124,8 +123,8 @@ export const GamePage = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-900">
-			<div className="max-w-7xl mx-auto px-4 py-6">
+		<div className="h-screen bg-gray-900 overflow-hidden flex flex-col">
+			<div className="w-full mx-auto px-4 py-6 flex-1 overflow-y-auto flex flex-col">
 				{/* ゲーム情報ヘッダー */}
 				<div className="bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-700">
 					<div className="flex flex-wrap items-center justify-between gap-4">
@@ -156,7 +155,7 @@ export const GamePage = () => {
 				)}
 
 				{/* ポーカーテーブル */}
-				<div className="mb-6">
+				<div className="mb-6 flex-1 flex items-center justify-center min-h-0">
 					<PokerTable gameState={gameState} currentActorIndex={actor} />
 				</div>
 
@@ -196,12 +195,12 @@ export const GamePage = () => {
 					</div>
 				)}
 
-				{/* アクションログ */}
-				{gameState.logs.length > 0 && (
+				{/* アクションログ 一旦非表示 */}
+				{/* {gameState.logs.length > 0 && (
 					<div className="mb-6">
 						<StreetActionLog logs={gameState.logs} players={gameState.players} />
 					</div>
-				)}
+				)} */}
 			</div>
 		</div>
 	);

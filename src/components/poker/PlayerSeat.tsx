@@ -16,15 +16,20 @@ interface PlayerSeatProps {
 // 座席0（You）を下部中央に配置し、時計回りに配置
 // プレイヤー数に応じて座席位置を動的に計算
 const getSeatPosition = (seat: number, totalPlayers: number): { angle: number; radiusX: number; radiusY: number } => {
-	// 座席0を下部中央（270度）に配置
-	const baseAngle = 270;
+	// 座席0（You）を常に真ん中下（6時の位置、90度）に配置
+	// CSS座標系: 0度=右（3時）、90度=下（6時）、180度=左（9時）、270度=上（12時）
+	const baseAngle = 90; // 6時の位置
 	// 各座席の角度間隔（360度をプレイヤー数で割る）
 	const angleStep = 360 / totalPlayers;
-	// 座席0から時計回りに配置
+	// 座席0から時計回りに配置（時計回りなので角度を増やす方向）
+	// 座席0: 90度（6時）
+	// 座席1: 90 + angleStep度（時計回り）
+	// 座席2: 90 + angleStep * 2度
 	const angle = (baseAngle + angleStep * seat) % 360;
 
-	// 半径はプレイヤー数に応じて調整
-	const baseRadius = totalPlayers <= 3 ? 100 : totalPlayers <= 5 ? 120 : 140;
+	// 半径はプレイヤー数に応じて調整（テーブルが広くなったので、より大きな半径に）
+	// ベース半径を大きくして、座席間のゆとりを確保
+	const baseRadius = totalPlayers <= 3 ? 150 : totalPlayers <= 5 ? 180 : 220;
 
 	// 楕円形の半径（スマホ/タブレット: 縦長、PC: 横長）
 	// モバイル: radiusY > radiusX（縦長）、デスクトップ: radiusX > radiusY（横長）
@@ -55,8 +60,8 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 		// デスクトップでは横方向を拡大、モバイルでは縦方向を拡大
 		const x = Math.cos(angleRad) * position.radiusX;
 		const y = Math.sin(angleRad) * position.radiusY;
-		// デスクトップで横長にするため、xを拡大
-		const scaleX = isDesktop ? 1.3 : 1;
+		// デスクトップで横長にするため、xを拡大（テーブルが広くなったので、より大きく拡大）
+		const scaleX = isDesktop ? 1.5 : 1;
 		const scaleY = isDesktop ? 0.9 : 1.2;
 
 		return {
@@ -105,18 +110,77 @@ export const PlayerSeat = ({ player, isActor, isWinner, isBringIn, totalPlayers 
 					)}
 				</div>
 
-				{/* カード表示 */}
-				{player.alive && (
-					<div className="flex gap-0.5 md:gap-1 justify-center items-center mb-1 md:mb-2 flex-wrap">
-						{/* Hole Cards（自分のみ表示、他は伏せる） */}
-						{player.holeCards.map((card) => (
-							<Card key={`hole-${card.rank}${card.suit}`} card={card} isHidden={!player.isHuman} size="sm" />
-						))}
-						{/* Upcards */}
-						{player.upcards.map((card) => (
-							<Card key={`up-${card.rank}${card.suit}`} card={card} size="sm" />
-						))}
+				{/* カード表示 - 7枚分の領域を確保
+					1行目: Hole Cards 2枚 + 最初のUpcard 1枚
+					2行目: 残りのUpcards 3枚 + 最後のHole Card 1枚 */}
+				{player.alive ? (
+					<div className="mb-1 md:mb-2">
+						{/* 1行目: Hole Cards 2枚 + 最初のUpcard 1枚 */}
+						<div className="flex gap-0.5 md:gap-1 justify-center items-center mb-0.5">
+							{/* Hole Card 1 */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.holeCards[0] ? (
+									<Card card={player.holeCards[0]} isHidden={!player.isHuman} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+							{/* Hole Card 2 */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.holeCards[1] ? (
+									<Card card={player.holeCards[1]} isHidden={!player.isHuman} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+							{/* 最初のUpcard */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.upcards[0] ? (
+									<Card card={player.upcards[0]} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+						</div>
+						{/* 2行目: 残りのUpcards 3枚 + 最後のHole Card 1枚 */}
+						<div className="flex gap-0.5 md:gap-1 justify-center items-center">
+							{/* Upcard 2 */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.upcards[1] ? (
+									<Card card={player.upcards[1]} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+							{/* Upcard 3 */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.upcards[2] ? (
+									<Card card={player.upcards[2]} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+							{/* Upcard 4 */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.upcards[3] ? (
+									<Card card={player.upcards[3]} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+							{/* 最後のHole Card */}
+							<div className="w-8 h-11 md:w-10 md:h-14 flex items-center justify-center">
+								{player.holeCards[2] ? (
+									<Card card={player.holeCards[2]} isHidden={!player.isHuman} size="sm" />
+								) : (
+									<div className="w-8 h-11 md:w-10 md:h-14" />
+								)}
+							</div>
+						</div>
 					</div>
+				) : (
+					/* Folded時も領域を確保 */
+					<div className="mb-1 md:mb-2 h-[60px] md:h-[72px]" />
 				)}
 
 				{/* 最終アクション */}

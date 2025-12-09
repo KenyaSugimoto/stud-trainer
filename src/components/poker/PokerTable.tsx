@@ -13,10 +13,10 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 	}, [gameState.players, gameState.playerCount]);
 
 	return (
-		<div className="relative w-full max-w-4xl mx-auto min-h-[500px] md:min-h-[600px] flex items-center justify-center py-8">
+		<div className="relative w-full h-full mx-auto flex items-center justify-center">
 			{/* テーブル背景（フェルト + リング）- 楕円形 */}
 			{/* スマホ/タブレット: 縦長の楕円（aspect-[4/5]）、PC: 横長の楕円（aspect-[5/4]） */}
-			<div className="relative w-full max-w-[90vw] md:max-w-[600px] aspect-4/5 md:aspect-5/4 bg-linear-to-b from-green-700 via-green-800 to-green-900 shadow-2xl border-8 border-amber-800 rounded-[50%]">
+			<div className="relative w-full h-full max-w-[90vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[70vw] max-h-full aspect-[4/5] md:aspect-[5/4] bg-gradient-to-b from-green-700 via-green-800 to-green-900 shadow-2xl border-8 border-amber-800 rounded-[50%]">
 				{/* 内側のリング */}
 				<div className="absolute inset-8 rounded-[50%] border-4 border-amber-700/50" />
 
