@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { PokerTable } from "../components/poker/PokerTable";
+import { StreetActionLog } from "../components/poker/StreetActionLog";
 import { GAME_TYPE_LABELS } from "../consts/consts";
 import { useGameStore } from "../hooks/useGameStore";
 import { useToast } from "../hooks/useToast";
@@ -102,8 +104,6 @@ export const GamePage = () => {
 		);
 	}
 
-	const player = gameState.players[actor];
-
 	const handleAction = (action: ActionType) => {
 		try {
 			applyAction(action, actor);
@@ -124,109 +124,46 @@ export const GamePage = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<div className="max-w-6xl mx-auto px-4 py-6">
+		<div className="min-h-screen bg-gray-900">
+			<div className="max-w-7xl mx-auto px-4 py-6">
 				{/* ゲーム情報ヘッダー */}
-				<div className="bg-white rounded-lg shadow-md p-4 mb-6">
+				<div className="bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-700">
 					<div className="flex flex-wrap items-center justify-between gap-4">
 						<div>
-							<h2 className="text-xl font-bold text-gray-900">{GAME_TYPE_LABELS[gameState.gameType]}</h2>
-							<p className="text-sm text-gray-600">
-								ストリート: <span className="font-semibold">{gameState.street}</span>
+							<h2 className="text-xl font-bold text-white">{GAME_TYPE_LABELS[gameState.gameType]}</h2>
+							<p className="text-sm text-gray-300">
+								ストリート: <span className="font-semibold text-white">{gameState.street}</span>
 							</p>
-						</div>
-						<div className="text-right">
-							<p className="text-lg font-bold text-blue-600">ポット: {gameState.pot.toLocaleString()}</p>
-							{gameState.bringInIndex !== null && (
-								<p className="text-sm text-gray-600">ブリングイン: {gameState.players[gameState.bringInIndex].name}</p>
-							)}
 						</div>
 					</div>
 				</div>
 
-				{/* 現在アクター表示 */}
-				{gameState.street !== "showdown" && (
-					<div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4 mb-6">
-						<p className="text-lg font-semibold text-gray-900">
-							現在のアクション: <span className="text-blue-600">{player.name}</span>
-						</p>
-					</div>
-				)}
-
 				{/* ショーダウン表示 */}
 				{gameState.street === "showdown" && gameState.handFinished && (
-					<div className="bg-green-100 border-2 border-green-400 rounded-lg p-4 mb-6">
-						<h3 className="text-xl font-bold text-gray-900 mb-2">Showdown</h3>
+					<div className="bg-green-900/50 border-2 border-green-500 rounded-lg p-4 mb-6">
+						<h3 className="text-xl font-bold text-white mb-2">Showdown</h3>
 						{gameState.winnerIndexes && gameState.winnerIndexes.length > 0 ? (
 							<div>
-								<p className="text-lg font-semibold text-green-700">
+								<p className="text-lg font-semibold text-green-300">
 									勝者: {gameState.winnerIndexes.map((idx) => gameState.players[idx].name).join(", ")}
 								</p>
-								{gameState.winnerIndexes.length > 1 && <p className="text-sm text-gray-600 mt-1">（Split Pot）</p>}
+								{gameState.winnerIndexes.length > 1 && <p className="text-sm text-gray-300 mt-1">（Split Pot）</p>}
 							</div>
 						) : (
-							<p className="text-gray-700">勝者がいません</p>
+							<p className="text-gray-300">勝者がいません</p>
 						)}
 					</div>
 				)}
 
-				{/* プレイヤー情報一覧 */}
-				<div className="bg-white rounded-lg shadow-md p-4 mb-6">
-					<h3 className="text-lg font-semibold text-gray-900 mb-4">プレイヤー情報</h3>
-					<div className="space-y-3">
-						{gameState.players.map((p) => {
-							const isActor = p.seat === actor && gameState.street !== "showdown";
-							const isWinner = gameState.winnerIndexes?.includes(p.seat);
-
-							return (
-								<div
-									key={p.seat}
-									className={`p-4 border-2 rounded-lg ${
-										isWinner
-											? "bg-green-50 border-green-400"
-											: isActor
-												? "bg-yellow-50 border-yellow-400"
-												: !p.alive
-													? "bg-gray-100 border-gray-300 opacity-60"
-													: "bg-white border-gray-200"
-									}`}
-								>
-									<div className="flex items-center justify-between mb-2">
-										<h4 className="font-semibold text-gray-900">
-											{p.name} {isActor && <span className="text-blue-600">(アクション中)</span>}
-											{isWinner && <span className="text-green-600">(勝者)</span>}
-											{!p.alive && <span className="text-gray-500">(Folded)</span>}
-										</h4>
-										<p className="text-sm font-semibold text-gray-700">スタック: {p.stack.toLocaleString()}</p>
-									</div>
-									<div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-										<p>このラウンドのベット: {p.totalBetThisRound.toLocaleString()}</p>
-										<p>最終アクション: {p.lastAction ? getActionLabel(p.lastAction) : "-"}</p>
-									</div>
-									{p.alive && (
-										<div className="mt-2 text-sm">
-											{p.holeCards.length > 0 && (
-												<p className="text-gray-700">
-													ホールカード: {p.holeCards.map((c) => `${c.rank}${c.suit}`).join(", ")}
-												</p>
-											)}
-											{p.upcards.length > 0 && (
-												<p className="text-gray-700">
-													アップカード: {p.upcards.map((c) => `${c.rank}${c.suit}`).join(", ")}
-												</p>
-											)}
-										</div>
-									)}
-								</div>
-							);
-						})}
-					</div>
+				{/* ポーカーテーブル */}
+				<div className="mb-6">
+					<PokerTable gameState={gameState} currentActorIndex={actor} />
 				</div>
 
 				{/* アクションボタン群 */}
 				{!gameState.handFinished && (
-					<div className="bg-white rounded-lg shadow-md p-4 mb-6">
-						<h3 className="text-lg font-semibold text-gray-900 mb-4">アクション</h3>
+					<div className="bg-gray-800 rounded-lg shadow-md p-4 mb-6 border border-gray-700">
+						<h3 className="text-lg font-semibold text-white mb-4">アクション</h3>
 						<div className="flex flex-wrap gap-2">
 							{allowed.length > 0 ? (
 								allowed.map((action) => (
@@ -234,13 +171,13 @@ export const GamePage = () => {
 										key={action}
 										type="button"
 										onClick={() => handleAction(action)}
-										className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+										className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
 									>
 										{getActionLabel(action)}
 									</button>
 								))
 							) : (
-								<p className="text-gray-600">アクション待機中...</p>
+								<p className="text-gray-400">アクション待機中...</p>
 							)}
 						</div>
 					</div>
@@ -248,14 +185,21 @@ export const GamePage = () => {
 
 				{/* Next Hand ボタン */}
 				{gameState.handFinished && (
-					<div className="bg-white rounded-lg shadow-md p-4">
+					<div className="bg-gray-800 rounded-lg shadow-md p-4 border border-gray-700">
 						<button
 							type="button"
 							onClick={handleNextHand}
-							className="w-full px-6 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+							className="w-full px-6 py-4 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-800"
 						>
 							Next Hand
 						</button>
+					</div>
+				)}
+
+				{/* アクションログ */}
+				{gameState.logs.length > 0 && (
+					<div className="mb-6">
+						<StreetActionLog logs={gameState.logs} players={gameState.players} />
 					</div>
 				)}
 			</div>

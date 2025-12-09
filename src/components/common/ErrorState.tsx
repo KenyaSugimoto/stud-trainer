@@ -15,4 +15,3 @@ export const ErrorState = ({ title = "エラーが発生しました", message, 
 		</div>
 	);
 };
-

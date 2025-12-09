@@ -15,4 +15,3 @@ export const EmptyState = ({ title, message, action }: EmptyStateProps) => {
 		</div>
 	);
 };
-

@@ -1,7 +1,7 @@
 // モックデータ（開発・テスト用）
 
-import type { GameState, PlayerState } from "../types/types";
 import { DEFAULT_INITIAL_STACK, DEFAULT_STAKES } from "../consts/consts";
+import type { GameState, PlayerState } from "../types/types";
 
 // Assumption: モックプレイヤーデータ
 export const createMockPlayers = (count: number, initialStack: number): PlayerState[] => {
@@ -40,4 +40,3 @@ export const createMockGameState = (): GameState => {
 		winnerIndexes: null,
 	};
 };
-
