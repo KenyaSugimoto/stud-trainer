@@ -1,4 +1,4 @@
-import type { ActionType, Rank, Stakes, Suit } from "../types/types";
+import type { ActionType, GameType, Rank, Stakes, Suit } from "../types/types";
 
 export const SUITS: Suit[] = ["s", "h", "d", "c"];
 export const RANKS: Rank[] = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"];
@@ -61,4 +61,11 @@ export const rankRazzValue: Record<Rank, number> = {
 	J: 11,
 	Q: 12,
 	K: 13,
+};
+
+// Assumption: ゲームタイプの表示ラベル
+export const GAME_TYPE_LABELS: Record<GameType, string> = {
+	STUD_HI: "Seven Card Stud (Hi)",
+	RAZZ: "Razz",
+	STUD_8: "Stud Hi-Lo 8-or-Better",
 };
