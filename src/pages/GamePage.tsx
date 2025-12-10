@@ -1,6 +1,6 @@
 // SCR-002: ゲーム画面
 // 参照: .documents/06_ui_brief.md
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { EmptyState } from "../components/common/EmptyState";
 import { ErrorState } from "../components/common/ErrorState";
@@ -10,6 +10,7 @@ import { useGameStore } from "../hooks/useGameStore";
 import { useToast } from "../hooks/useToast";
 import type { ActionType } from "../types/types";
 import { getActionLabel, getAllowedActions } from "../utils/actor";
+import { decideCpuAction } from "../utils/cpuAction";
 
 export const GamePage = () => {
 	const navigate = useNavigate();
@@ -34,6 +35,50 @@ export const GamePage = () => {
 		if (gameState.currentActorIndex === null) return [];
 		return getAllowedActions(gameState, gameState.currentActorIndex);
 	}, [gameState]);
+
+	// 現在のアクターが自分（You）かどうか
+	const isMyTurn = useMemo(() => {
+		if (!gameState || actor === null) return false;
+		const currentPlayer = gameState.players[actor];
+		return currentPlayer?.isHuman ?? false;
+	}, [gameState, actor]);
+
+	// CPUの自動アクション実行
+	const cpuActionTimeoutRef = useRef<number | null>(null);
+	useEffect(() => {
+		// 前のタイマーをクリア
+		if (cpuActionTimeoutRef.current) {
+			clearTimeout(cpuActionTimeoutRef.current);
+			cpuActionTimeoutRef.current = null;
+		}
+
+		// ゲームが終了している場合は何もしない
+		if (!gameState || gameState.handFinished || actor === null) {
+			return;
+		}
+
+		// 自分のターンの場合は何もしない
+		if (isMyTurn) {
+			return;
+		}
+
+		// CPUのターンの場合、少し遅延してから自動でアクションを実行
+		cpuActionTimeoutRef.current = setTimeout(() => {
+			try {
+				const cpuAction = decideCpuAction(gameState, actor);
+				applyAction(cpuAction, actor);
+			} catch (error) {
+				console.error("CPU action error:", error);
+				showError("CPUのアクション実行に失敗しました");
+			}
+		}, 500); // 500msの遅延で自然な動作を演出
+
+		return () => {
+			if (cpuActionTimeoutRef.current) {
+				clearTimeout(cpuActionTimeoutRef.current);
+			}
+		};
+	}, [gameState, actor, isMyTurn, applyAction, showError]);
 
 	// empty状態
 	if (currentScreenState === "empty") {
@@ -130,7 +175,7 @@ export const GamePage = () => {
 				</div>
 
 				{/* アクションボタン群 - shrink-0で固定サイズ、確実に表示されるように */}
-				{!gameState.handFinished && (
+				{!gameState.handFinished && isMyTurn && (
 					<div className="shrink-0 bg-gray-800 rounded-lg shadow-md p-3 mt-2 mb-2 border border-gray-700">
 						<h3 className="text-base md:text-lg font-semibold text-white mb-2 md:mb-3">アクション</h3>
 						<div className="flex flex-wrap gap-2">
@@ -149,6 +194,12 @@ export const GamePage = () => {
 								<p className="text-gray-400 text-sm md:text-base">アクション待機中...</p>
 							)}
 						</div>
+					</div>
+				)}
+				{/* CPUのターン時は待機メッセージを表示 */}
+				{!gameState.handFinished && !isMyTurn && (
+					<div className="shrink-0 bg-gray-800 rounded-lg shadow-md p-3 mt-2 mb-2 border border-gray-700">
+						<p className="text-gray-400 text-sm md:text-base text-center">CPUのアクション待機中...</p>
 					</div>
 				)}
 
