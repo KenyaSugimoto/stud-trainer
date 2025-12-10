@@ -25,8 +25,10 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 				{/* 中央エリア（ポット情報） */}
 				<div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-10">
 					<div className="bg-black/50 rounded-lg px-4 py-3 md:px-6 md:py-4 backdrop-blur-sm">
-						<div className="text-white text-lg md:text-lg font-bold mb-1">
-							{GAME_TYPE_LABELS[gameState.gameType]}: {gameState.street}
+						<div className="text-white text-lg md:text-lg font-bold mb-1">{GAME_TYPE_LABELS[gameState.gameType]}</div>
+						<div className="text-white text-xl md:text-sm font-bold mb-1">
+							{gameState.stakes.ante} - {gameState.stakes.bringIn} - {gameState.stakes.smallBet} -{" "}
+							{gameState.stakes.bigBet}
 						</div>
 						<div className="text-white text-xl md:text-2xl font-bold mb-1">
 							<span className="text-green-300 text-xs md:text-sm">Pot </span>
@@ -41,6 +43,17 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 					const isWinner = gameState.winnerIndexes?.includes(player.seat) ?? false;
 					const isShowdown = gameState.street === "showdown";
 
+					// 獲得額の計算（ハンド終了時のみ）
+					const winAmount =
+						gameState.handFinished && isWinner && gameState.winnerIndexes
+							? Math.floor(gameState.pot / gameState.winnerIndexes.length) +
+								(gameState.pot % gameState.winnerIndexes.length > 0 &&
+								gameState.winnerIndexes.sort((a, b) => a - b).indexOf(player.seat) <
+									gameState.pot % gameState.winnerIndexes.length
+									? 1
+									: 0)
+							: null;
+
 					return (
 						<PlayerSeat
 							key={player.seat}
@@ -50,6 +63,8 @@ export const PokerTable = ({ gameState, currentActorIndex }: PokerTableProps) =>
 							currentActorIndex={currentActorIndex}
 							totalPlayers={gameState.playerCount}
 							isShowdown={isShowdown}
+							handFinished={gameState.handFinished}
+							winAmount={winAmount}
 						/>
 					);
 				})}
