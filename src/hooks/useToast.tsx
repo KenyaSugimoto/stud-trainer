@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import type { Toast, ToastType } from "../types/ui";
 
 let toastIdCounter = 0;
