@@ -76,22 +76,47 @@ export const evaluate5Low8OrBetter = (hand: Card[]): EvaluateLowResult => {
 // 7枚から Low 8-or-better のベスト5（21通り）
 // ------------------------------
 export const evaluateHandStud8Low = (cards: Card[]): EvaluateLowResult | null => {
-	if (cards.length !== 7) {
-		throw new Error(`Invalid cards length: expected 7, got ${cards.length}`);
+	const n = cards.length;
+	if (n < 5) {
+		return null;
 	}
 
 	let bestScore: number[] | null = null;
 	let bestHand: Card[] = [];
 
-	for (let i = 0; i < 7; i += 1) {
-		for (let j = i + 1; j < 7; j += 1) {
-			const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+	const excludeCount = n - 5;
+
+	if (excludeCount === 0) {
+		// n=5, 1通り
+		const res = evaluate5Low8OrBetter(cards);
+		if (res.qualifies) {
+			bestScore = res.score;
+			bestHand = res.hand;
+		}
+	} else if (excludeCount === 1) {
+		// n=6, 1枚除く, 6通り
+		for (let i = 0; i < 6; i += 1) {
+			const hand = cards.filter((_, idx) => idx !== i);
 			const res = evaluate5Low8OrBetter(hand);
 			if (!res.qualifies) continue;
 
 			if (isBetterLowScore(res.score, bestScore)) {
 				bestScore = res.score;
 				bestHand = res.hand;
+			}
+		}
+	} else if (excludeCount === 2) {
+		// n=7, 2枚除く, 21通り
+		for (let i = 0; i < 7; i += 1) {
+			for (let j = i + 1; j < 7; j += 1) {
+				const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+				const res = evaluate5Low8OrBetter(hand);
+				if (!res.qualifies) continue;
+
+				if (isBetterLowScore(res.score, bestScore)) {
+					bestScore = res.score;
+					bestHand = res.hand;
+				}
 			}
 		}
 	}

@@ -121,16 +121,35 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 // 7枚の中から最強5枚を選ぶ（全21通り）
 // メイン関数
 export const evaluateHandHi = (cards: Card[]): Evaluate7Result => {
+	const n = cards.length;
+	if (n < 5) {
+		return {
+			rank: null,
+			score: [],
+			hand: [],
+		};
+	}
+
 	let best: Evaluate7Result = {
 		rank: null,
 		score: [],
 		hand: [],
 	};
 
-	// 7枚 → 21通りの5枚
-	for (let i = 0; i < 7; i += 1) {
-		for (let j = i + 1; j < 7; j += 1) {
-			const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+	const excludeCount = n - 5;
+
+	if (excludeCount === 0) {
+		// n=5, 1通り
+		const res = evaluate5(cards);
+		best = {
+			rank: res.rank,
+			score: res.score,
+			hand: res.hand,
+		};
+	} else if (excludeCount === 1) {
+		// n=6, 1枚除く, 6通り
+		for (let i = 0; i < 6; i += 1) {
+			const hand = cards.filter((_, idx) => idx !== i);
 			const res = evaluate5(hand);
 
 			if (isBetterHand(res.rank, res.score, best.rank, best.score)) {
@@ -139,6 +158,22 @@ export const evaluateHandHi = (cards: Card[]): Evaluate7Result => {
 					score: res.score,
 					hand: res.hand,
 				};
+			}
+		}
+	} else if (excludeCount === 2) {
+		// n=7, 2枚除く, 21通り
+		for (let i = 0; i < 7; i += 1) {
+			for (let j = i + 1; j < 7; j += 1) {
+				const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+				const res = evaluate5(hand);
+
+				if (isBetterHand(res.rank, res.score, best.rank, best.score)) {
+					best = {
+						rank: res.rank,
+						score: res.score,
+						hand: res.hand,
+					};
+				}
 			}
 		}
 	}

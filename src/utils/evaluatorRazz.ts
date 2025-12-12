@@ -75,23 +75,51 @@ export const evaluate5Razz = (hand: Card[]): Evaluate5RazzResult => {
 };
 
 export const evaluateHandRazz = (cards: Card[]): Evaluate7RazzResult => {
-	if (cards.length !== 7) {
-		throw new Error(`Invalid cards length: expected 7, got ${cards.length}`);
+	const n = cards.length;
+	if (n < 5) {
+		return {
+			category: null,
+			score: [],
+			hand: [],
+		};
 	}
 
 	let bestScore: number[] | null = null;
 	let bestHand: Card[] = [];
 	let bestCategory: RazzCategory | null = null;
 
-	for (let i = 0; i < 7; i += 1) {
-		for (let j = i + 1; j < 7; j += 1) {
-			const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+	const excludeCount = n - 5;
+
+	if (excludeCount === 0) {
+		// n=5, 1通り
+		const res = evaluate5Razz(cards);
+		bestScore = res.score;
+		bestHand = res.hand;
+		bestCategory = res.category;
+	} else if (excludeCount === 1) {
+		// n=6, 1枚除く, 6通り
+		for (let i = 0; i < 6; i += 1) {
+			const hand = cards.filter((_, idx) => idx !== i);
 			const res = evaluate5Razz(hand);
 
 			if (isBetterLowScore(res.score, bestScore)) {
 				bestScore = res.score;
 				bestHand = res.hand;
 				bestCategory = res.category;
+			}
+		}
+	} else if (excludeCount === 2) {
+		// n=7, 2枚除く, 21通り
+		for (let i = 0; i < 7; i += 1) {
+			for (let j = i + 1; j < 7; j += 1) {
+				const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+				const res = evaluate5Razz(hand);
+
+				if (isBetterLowScore(res.score, bestScore)) {
+					bestScore = res.score;
+					bestHand = res.hand;
+					bestCategory = res.category;
+				}
 			}
 		}
 	}
