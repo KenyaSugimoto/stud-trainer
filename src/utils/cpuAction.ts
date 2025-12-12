@@ -1,8 +1,8 @@
 import { rankHiValue, rankRazzValue } from "../consts/consts";
-import type { ActionType, GameState, SeatIndex, Evaluate7Result, HandRank } from "../types/types";
+import type { ActionType, Evaluate7Result, GameState, HandRank, SeatIndex } from "../types/types";
 import { getAllowedActions } from "./actor";
 import { evaluateHandHi, isBetterHand } from "./evaluateStudHi";
-import { evaluateHandRazz, isBetterLowScore, type Evaluate7RazzResult } from "./evaluatorRazz";
+import { type Evaluate7RazzResult, evaluateHandRazz, isBetterLowScore } from "./evaluatorRazz";
 import { evaluateHandStud8 } from "./evaluatorStud8";
 
 /**
@@ -105,7 +105,11 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 		// デフォルトはSTUD_HI
 		myEvaluation = evaluateHandHi(visibleCards);
 	}
-	if (gameType === "RAZZ" ? (myEvaluation as Evaluate7RazzResult).category === null : (myEvaluation as Evaluate7Result).rank === null) {
+	if (
+		gameType === "RAZZ"
+			? (myEvaluation as Evaluate7RazzResult).category === null
+			: (myEvaluation as Evaluate7Result).rank === null
+	) {
 		// 評価できない場合はcall
 		return allowedActions.includes("c") ? "c" : allowedActions[0];
 	}
@@ -135,25 +139,47 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 			otherEvaluation = evaluateHandHi(otherVisibleCards);
 		}
 
-		if (gameType === "RAZZ" ? (otherEvaluation as Evaluate7RazzResult).category === null : (otherEvaluation as Evaluate7Result).rank === null) {
+		if (
+			gameType === "RAZZ"
+				? (otherEvaluation as Evaluate7RazzResult).category === null
+				: (otherEvaluation as Evaluate7Result).rank === null
+		) {
 			// 評価できない場合は無視
 			continue;
 		}
 
 		if (gameType === "RAZZ") {
 			// Razz: 低いscoreの方が強い
-			if (isBetterLowScore((otherEvaluation as Evaluate7RazzResult).score, (myEvaluation as Evaluate7RazzResult).score)) {
+			if (
+				isBetterLowScore((otherEvaluation as Evaluate7RazzResult).score, (myEvaluation as Evaluate7RazzResult).score)
+			) {
 				strongerCount++;
-			} else if (isBetterLowScore((myEvaluation as Evaluate7RazzResult).score, (otherEvaluation as Evaluate7RazzResult).score)) {
+			} else if (
+				isBetterLowScore((myEvaluation as Evaluate7RazzResult).score, (otherEvaluation as Evaluate7RazzResult).score)
+			) {
 				weakerCount++;
 			} else {
 				equalCount++;
 			}
 		} else {
 			// STUD_HI, STUD_8: 高いrank/scoreの方が強い
-			if (isBetterHand((otherEvaluation as Evaluate7Result).rank as HandRank, (otherEvaluation as Evaluate7Result).score, (myEvaluation as Evaluate7Result).rank as HandRank, (myEvaluation as Evaluate7Result).score)) {
+			if (
+				isBetterHand(
+					(otherEvaluation as Evaluate7Result).rank as HandRank,
+					(otherEvaluation as Evaluate7Result).score,
+					(myEvaluation as Evaluate7Result).rank as HandRank,
+					(myEvaluation as Evaluate7Result).score,
+				)
+			) {
 				strongerCount++;
-			} else if (isBetterHand((myEvaluation as Evaluate7Result).rank as HandRank, (myEvaluation as Evaluate7Result).score, (otherEvaluation as Evaluate7Result).rank as HandRank, (otherEvaluation as Evaluate7Result).score)) {
+			} else if (
+				isBetterHand(
+					(myEvaluation as Evaluate7Result).rank as HandRank,
+					(myEvaluation as Evaluate7Result).score,
+					(otherEvaluation as Evaluate7Result).rank as HandRank,
+					(otherEvaluation as Evaluate7Result).score,
+				)
+			) {
 				weakerCount++;
 			} else {
 				equalCount++;
