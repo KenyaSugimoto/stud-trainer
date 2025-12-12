@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type Card, HAND_RANK } from "../../types/types";
-import { evaluateHandHi } from "../evaluateHand";
+import { evaluate5, evaluateHandHi } from "../evaluateHand";
 
 // 便利関数
 const C = (rank: Card["rank"], suit: Card["suit"]): Card => ({
@@ -166,5 +166,25 @@ describe("evaluateHandHi", () => {
 
 		const r = evaluateHandHi(cards);
 		expect(r.rank).toBe(HAND_RANK.FOUR_OF_A_KIND);
+	});
+});
+
+describe("evaluate5", () => {
+	// ----------------------------------------------------
+	// Edge cases for undefined access prevention
+	// ----------------------------------------------------
+	it("throws error for empty hand", () => {
+		expect(() => evaluate5([])).toThrow("Invalid hand length: expected 5, got 0");
+	});
+
+	it("throws error for hand with less than 5 cards", () => {
+		const cards = [C("A", "s"), C("K", "h")];
+		expect(() => evaluate5(cards)).toThrow("Invalid hand length: expected 5, got 2");
+	});
+
+	it("handles normal 5-card hand", () => {
+		const cards = [C("A", "s"), C("K", "s"), C("Q", "s"), C("J", "s"), C("T", "s")];
+		const r = evaluate5(cards);
+		expect(r.rank).toBe(HAND_RANK.ROYAL_FLUSH);
 	});
 });

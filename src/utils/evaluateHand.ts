@@ -3,6 +3,9 @@ import { type Card, type Evaluate5Result, type Evaluate7Result, HAND_RANK, type 
 
 // 5枚から役を判定する
 export const evaluate5 = (hand: Card[]): Evaluate5Result => {
+	if (hand.length !== 5) {
+		throw new Error(`Invalid hand length: expected 5, got ${hand.length}`);
+	}
 	const ranks = hand.map((c) => rankHiValue[c.rank]).sort((a, b) => b - a);
 	const suits = hand.map((c) => c.suit);
 
@@ -42,7 +45,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 2) Four of a Kind
-	if (groups[0].cnt === 4) {
+	if (groups.length > 0 && groups[0].cnt === 4) {
 		return {
 			rank: HAND_RANK.FOUR_OF_A_KIND,
 			score: [HAND_RANK.FOUR_OF_A_KIND, groups[0].rank, groups[1].rank],
@@ -51,7 +54,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 3) Full House
-	if (groups[0].cnt === 3 && groups[1].cnt === 2) {
+	if (groups.length > 1 && groups[0].cnt === 3 && groups[1].cnt === 2) {
 		return {
 			rank: HAND_RANK.FULL_HOUSE,
 			score: [HAND_RANK.FULL_HOUSE, groups[0].rank, groups[1].rank],
@@ -78,7 +81,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 6) Trips
-	if (groups[0].cnt === 3) {
+	if (groups.length > 0 && groups[0].cnt === 3) {
 		const kickers = groups.slice(1).map((g) => g.rank);
 		return {
 			rank: HAND_RANK.THREE_OF_A_KIND,
@@ -88,7 +91,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 7) Two Pair
-	if (groups[0].cnt === 2 && groups[1].cnt === 2) {
+	if (groups.length > 2 && groups[0].cnt === 2 && groups[1].cnt === 2) {
 		const kicker = groups[2].rank;
 		return {
 			rank: HAND_RANK.TWO_PAIR,
@@ -98,7 +101,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 8) One Pair
-	if (groups[0].cnt === 2) {
+	if (groups.length > 0 && groups[0].cnt === 2) {
 		const kickers = groups.slice(1).map((g) => g.rank);
 		return {
 			rank: HAND_RANK.ONE_PAIR,
