@@ -1,7 +1,9 @@
 import { rankHiValue, rankRazzValue } from "../consts/consts";
-import type { ActionType, GameState, SeatIndex } from "../types/types";
+import type { ActionType, GameState, SeatIndex, Evaluate7Result, HandRank } from "../types/types";
 import { getAllowedActions } from "./actor";
 import { evaluateHandHi, isBetterHand } from "./evaluateStudHi";
+import { evaluateHandRazz, isBetterLowScore, type Evaluate7RazzResult } from "./evaluatorRazz";
+import { evaluateHandStud8 } from "./evaluatorStud8";
 
 /**
  * 3rd StreetでのCPUアクション決定
@@ -81,6 +83,7 @@ const decideAction3rd = (gameState: GameState, seat: SeatIndex): ActionType => {
 const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType => {
 	const player = gameState.players[seat];
 	const allowedActions = getAllowedActions(gameState, seat);
+	const gameType = gameState.gameType;
 
 	// 自分のボードを評価（見えているカードのみ）
 	const visibleCards = [...player.holeCards.filter(() => true), ...player.upcards];
@@ -90,8 +93,19 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 	}
 
 	// 自分のボードの強さを評価（最良の5枚を選ぶ）
-	const myHand = evaluateHandHi(visibleCards);
-	if (myHand.rank === null) {
+	let myEvaluation: Evaluate7Result | Evaluate7RazzResult;
+	if (gameType === "STUD_HI") {
+		myEvaluation = evaluateHandHi(visibleCards);
+	} else if (gameType === "RAZZ") {
+		myEvaluation = evaluateHandRazz(visibleCards);
+	} else if (gameType === "STUD_8") {
+		const stud8Eval = evaluateHandStud8(visibleCards);
+		myEvaluation = stud8Eval.hi;
+	} else {
+		// デフォルトはSTUD_HI
+		myEvaluation = evaluateHandHi(visibleCards);
+	}
+	if (gameType === "RAZZ" ? (myEvaluation as Evaluate7RazzResult).category === null : (myEvaluation as Evaluate7Result).rank === null) {
 		// 評価できない場合はcall
 		return allowedActions.includes("c") ? "c" : allowedActions[0];
 	}
@@ -109,18 +123,41 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 			continue;
 		}
 
-		const otherHand = evaluateHandHi(otherVisibleCards);
-		if (otherHand.rank === null) {
+		let otherEvaluation: Evaluate7Result | Evaluate7RazzResult;
+		if (gameType === "STUD_HI") {
+			otherEvaluation = evaluateHandHi(otherVisibleCards);
+		} else if (gameType === "RAZZ") {
+			otherEvaluation = evaluateHandRazz(otherVisibleCards);
+		} else if (gameType === "STUD_8") {
+			const stud8Eval = evaluateHandStud8(otherVisibleCards);
+			otherEvaluation = stud8Eval.hi;
+		} else {
+			otherEvaluation = evaluateHandHi(otherVisibleCards);
+		}
+
+		if (gameType === "RAZZ" ? (otherEvaluation as Evaluate7RazzResult).category === null : (otherEvaluation as Evaluate7Result).rank === null) {
 			// 評価できない場合は無視
 			continue;
 		}
 
-		if (isBetterHand(otherHand.rank, otherHand.score, myHand.rank, myHand.score)) {
-			strongerCount++;
-		} else if (isBetterHand(myHand.rank, myHand.score, otherHand.rank, otherHand.score)) {
-			weakerCount++;
+		if (gameType === "RAZZ") {
+			// Razz: 低いscoreの方が強い
+			if (isBetterLowScore((otherEvaluation as Evaluate7RazzResult).score, (myEvaluation as Evaluate7RazzResult).score)) {
+				strongerCount++;
+			} else if (isBetterLowScore((myEvaluation as Evaluate7RazzResult).score, (otherEvaluation as Evaluate7RazzResult).score)) {
+				weakerCount++;
+			} else {
+				equalCount++;
+			}
 		} else {
-			equalCount++;
+			// STUD_HI, STUD_8: 高いrank/scoreの方が強い
+			if (isBetterHand((otherEvaluation as Evaluate7Result).rank as HandRank, (otherEvaluation as Evaluate7Result).score, (myEvaluation as Evaluate7Result).rank as HandRank, (myEvaluation as Evaluate7Result).score)) {
+				strongerCount++;
+			} else if (isBetterHand((myEvaluation as Evaluate7Result).rank as HandRank, (myEvaluation as Evaluate7Result).score, (otherEvaluation as Evaluate7Result).rank as HandRank, (otherEvaluation as Evaluate7Result).score)) {
+				weakerCount++;
+			} else {
+				equalCount++;
+			}
 		}
 	}
 

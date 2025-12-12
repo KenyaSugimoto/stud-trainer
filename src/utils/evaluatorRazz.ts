@@ -29,7 +29,7 @@ export type Evaluate7RazzResult = {
 	hand: Card[]; // ベスト5枚
 };
 
-const isBetterLowScore = (a: number[], b: number[] | null): boolean => {
+export const isBetterLowScore = (a: number[], b: number[] | null): boolean => {
 	if (b === null) return true;
 	const len = Math.max(a.length, b.length);
 	for (let i = 0; i < len; i += 1) {
