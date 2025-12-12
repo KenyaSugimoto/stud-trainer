@@ -87,8 +87,8 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 
 	// 自分のボードを評価（見えているカードのみ）
 	const visibleCards = [...player.holeCards.filter(() => true), ...player.upcards];
-	if (visibleCards.length < 3) {
-		// カードが少なすぎる場合はcall
+	if (visibleCards.length < 5) {
+		// カードが5枚未満の場合は評価できないのでcall
 		return allowedActions.includes("c") ? "c" : allowedActions[0];
 	}
 
@@ -122,8 +122,8 @@ const decideAction4thPlus = (gameState: GameState, seat: SeatIndex): ActionType 
 
 	for (const other of otherPlayers) {
 		const otherVisibleCards = [...other.holeCards.filter(() => true), ...other.upcards];
-		if (otherVisibleCards.length < 3) {
-			// カードが少なすぎる場合は無視
+		if (otherVisibleCards.length < 5) {
+			// カードが5枚未満の場合は無視
 			continue;
 		}
 
