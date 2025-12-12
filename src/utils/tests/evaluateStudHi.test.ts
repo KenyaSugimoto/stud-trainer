@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type Card, HAND_RANK } from "../../types/types";
-import { evaluate5, evaluateHandHi } from "../evaluateHand";
+import { evaluate5, evaluateHandHi } from "../evaluateStudHi";
 
 // 便利関数
 const C = (rank: Card["rank"], suit: Card["suit"]): Card => ({

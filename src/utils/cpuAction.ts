@@ -1,7 +1,7 @@
 import { rankHiValue, rankRazzValue } from "../consts/consts";
 import type { ActionType, GameState, SeatIndex } from "../types/types";
 import { getAllowedActions } from "./actor";
-import { evaluateHandHi, isBetterHand } from "./evaluateHand";
+import { evaluateHandHi, isBetterHand } from "./evaluateStudHi";
 
 /**
  * 3rd StreetでのCPUアクション決定

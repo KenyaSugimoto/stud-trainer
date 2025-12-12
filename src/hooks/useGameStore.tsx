@@ -6,7 +6,7 @@ import { getFirstActorForStreet, getNextActorIndex, shouldEndStreet } from "../u
 import { calcBetAmount, collectAntes } from "../utils/betUnit";
 import { computeBringIn } from "../utils/bringIn";
 import { deal3rd } from "../utils/card";
-import { evaluateHandHi, isBetterHand } from "../utils/evaluateHand";
+import { evaluateHandHi, isBetterHand } from "../utils/evaluateStudHi";
 import { goToNextStreet, initGameState } from "../utils/gameState";
 
 type GameStore = {
