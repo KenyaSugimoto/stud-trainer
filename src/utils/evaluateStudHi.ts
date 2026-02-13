@@ -3,6 +3,9 @@ import { type Card, type Evaluate5Result, type Evaluate7Result, HAND_RANK, type 
 
 // 5枚から役を判定する
 export const evaluate5 = (hand: Card[]): Evaluate5Result => {
+	if (hand.length !== 5) {
+		throw new Error(`Invalid hand length: expected 5, got ${hand.length}`);
+	}
 	const ranks = hand.map((c) => rankHiValue[c.rank]).sort((a, b) => b - a);
 	const suits = hand.map((c) => c.suit);
 
@@ -42,7 +45,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 2) Four of a Kind
-	if (groups[0].cnt === 4) {
+	if (groups.length > 0 && groups[0].cnt === 4) {
 		return {
 			rank: HAND_RANK.FOUR_OF_A_KIND,
 			score: [HAND_RANK.FOUR_OF_A_KIND, groups[0].rank, groups[1].rank],
@@ -51,7 +54,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 3) Full House
-	if (groups[0].cnt === 3 && groups[1].cnt === 2) {
+	if (groups.length > 1 && groups[0].cnt === 3 && groups[1].cnt === 2) {
 		return {
 			rank: HAND_RANK.FULL_HOUSE,
 			score: [HAND_RANK.FULL_HOUSE, groups[0].rank, groups[1].rank],
@@ -78,7 +81,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 6) Trips
-	if (groups[0].cnt === 3) {
+	if (groups.length > 0 && groups[0].cnt === 3) {
 		const kickers = groups.slice(1).map((g) => g.rank);
 		return {
 			rank: HAND_RANK.THREE_OF_A_KIND,
@@ -88,7 +91,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 7) Two Pair
-	if (groups[0].cnt === 2 && groups[1].cnt === 2) {
+	if (groups.length > 2 && groups[0].cnt === 2 && groups[1].cnt === 2) {
 		const kicker = groups[2].rank;
 		return {
 			rank: HAND_RANK.TWO_PAIR,
@@ -98,7 +101,7 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 	}
 
 	// 8) One Pair
-	if (groups[0].cnt === 2) {
+	if (groups.length > 0 && groups[0].cnt === 2) {
 		const kickers = groups.slice(1).map((g) => g.rank);
 		return {
 			rank: HAND_RANK.ONE_PAIR,
@@ -118,16 +121,35 @@ export const evaluate5 = (hand: Card[]): Evaluate5Result => {
 // 7枚の中から最強5枚を選ぶ（全21通り）
 // メイン関数
 export const evaluateHandHi = (cards: Card[]): Evaluate7Result => {
+	const n = cards.length;
+	if (n < 5) {
+		return {
+			rank: null,
+			score: [],
+			hand: [],
+		};
+	}
+
 	let best: Evaluate7Result = {
 		rank: null,
 		score: [],
 		hand: [],
 	};
 
-	// 7枚 → 21通りの5枚
-	for (let i = 0; i < 7; i += 1) {
-		for (let j = i + 1; j < 7; j += 1) {
-			const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+	const excludeCount = n - 5;
+
+	if (excludeCount === 0) {
+		// n=5, 1通り
+		const res = evaluate5(cards);
+		best = {
+			rank: res.rank,
+			score: res.score,
+			hand: res.hand,
+		};
+	} else if (excludeCount === 1) {
+		// n=6, 1枚除く, 6通り
+		for (let i = 0; i < 6; i += 1) {
+			const hand = cards.filter((_, idx) => idx !== i);
 			const res = evaluate5(hand);
 
 			if (isBetterHand(res.rank, res.score, best.rank, best.score)) {
@@ -136,6 +158,22 @@ export const evaluateHandHi = (cards: Card[]): Evaluate7Result => {
 					score: res.score,
 					hand: res.hand,
 				};
+			}
+		}
+	} else if (excludeCount === 2) {
+		// n=7, 2枚除く, 21通り
+		for (let i = 0; i < 7; i += 1) {
+			for (let j = i + 1; j < 7; j += 1) {
+				const hand = cards.filter((_, idx) => idx !== i && idx !== j);
+				const res = evaluate5(hand);
+
+				if (isBetterHand(res.rank, res.score, best.rank, best.score)) {
+					best = {
+						rank: res.rank,
+						score: res.score,
+						hand: res.hand,
+					};
+				}
 			}
 		}
 	}
